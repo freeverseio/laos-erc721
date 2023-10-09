@@ -1,0 +1,65 @@
+version: 2.1
+
+orbs:
+  kube-orb: circleci/kubernetes@1.3.1
+  helm: circleci/helm@2.0.1
+  codecov: codecov/codecov@1.0.2
+
+# the default pipeline parameters, which will be updated according to
+# the results of the path-filtering orb
+parameters:
+  run-solidity-job:
+    type: boolean
+    default: false
+
+commands:
+  build_and_push:
+    description: Build and push Docker image
+    parameters:
+      image:
+        type: string
+      root:
+        type: string
+    steps:
+      - run:
+          name: Build and push Docker image
+          command: |
+            ./scripts/ci/dockerize-and-push.sh freeverseio/<< parameters.image >> << parameters.root >>
+  install_helmfile:
+    description: Install helmfile
+    steps:
+      - run:
+          name: Install helmfile
+          command: ./scripts/ci/install-helmfile.sh
+
+jobs:
+  solidity:
+    docker:
+      - image: cimg/node:lts
+    parameters:
+      run-job:
+        type: boolean
+        default: false
+    parallelism: 10
+    resource_class: large
+      steps:
+            - checkout
+            - run: cd solidity && npm ci
+            - run: cd solidity/signer && npm ci && npm test
+            - run: cd solidity && ./node_modules/.bin/truffle compile
+            - run: cd solidity && npm run scripts_test
+            - run:
+                command: |
+                  cd solidity
+                  circleci tests glob "test/*.js" | circleci tests split --split-by=timings > /tmp/tests-to-run
+                  cat /tmp/tests-to-run
+                  node_modules/.bin/ganache --chain.chainId 137 --logging.quiet=true & ganachePID=$! && ./node_modules/.bin/truffle test $(cat /tmp/tests-to-run) --network ganachetest && kill -9 ${ganachePID}
+
+workflows:
+  build_and_test:
+    jobs:
+      - solidity:
+          run-job: << pipeline.parameters.run-solidity-job >>
+          filters:
+            tags:
+              only: /.*/
