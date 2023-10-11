@@ -1,7 +1,6 @@
 # ERC721 LAOS template contract 
 
-This repository contains solidity template ERC721 contract. It can be used for deploying erc721 contracts on any evm 
-blockchain to be used as ownership in LAOS project. The project is based on [open-zeppeling contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) 
+This repository houses a Solidity-based ERC721 template contract. It is designed for deploying ERC721 contracts on any EVM-compatible blockchain, intended for representing asset ownership within the LAOS project. The project is based on [open-zeppeling contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) 
 
 ## Installing dependencies
 
