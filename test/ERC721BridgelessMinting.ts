@@ -8,7 +8,7 @@ import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721Brid
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
-// TODO: burn, test trasnfer of burned
+// TODO: burn can be executed by approved operator
 // add linting
 
 describe('ERC721LAOS', function () {
@@ -139,6 +139,31 @@ describe('ERC721LAOS', function () {
       .withArgs(tokenId);
 
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+  });
+
+  it('Asset cannot be burned by address that is not its owner', async function () {
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+
+    await expect(erc721.connect(addr2).burn(tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721InsufficientApproval')
+      .withArgs(addr2.address, tokenId);
+  });
+
+  it('Asset cannot be burned twice', async function () {
+    const nullAddress = ethers.toBeHex(0, 20);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.emit(erc721, 'Transfer')
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
   });
 
   it('Burned asset cannot be transferred', async function () {
