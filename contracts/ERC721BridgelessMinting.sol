@@ -90,8 +90,7 @@ contract ERC721BridgelessMinting is ERC721 {
         pure
         returns (address)
     {
-        return
-            address(uint160(tokenId));
+        return address(uint160(tokenId));
     }
 
     

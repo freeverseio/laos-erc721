@@ -8,6 +8,12 @@ import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721Brid
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
+// TODO: transfer to 0
+// TODO: burn
+// TODO: exists
+// owner of 0
+// add linting
+
 describe('ERC721LAOS', function () {
 
   const defaultBalance = 2n ** 96n;
@@ -48,7 +54,7 @@ describe('ERC721LAOS', function () {
   it('Should return correct tokenURI', async function () {
     const tokenId = 1;
     const tokenURI = await erc721.tokenURI(tokenId);
-    expect(tokenURI).to.equal('evochain1/collectionId/1');
+    expect(await erc721.tokenURI(tokenId)).to.equal('evochain1/collectionId/1');
   });
 
   it('Should return the initial owner of the token if it is not transferred yet', async function () {
@@ -57,7 +63,37 @@ describe('ERC721LAOS', function () {
     expect(ownerOfToken).to.equal(ethers.toBeHex(tokenId, 20));
   });
 
-  // TODO: add tests for initOwner(tokenId)
+  it('The null address is the only one that cannot own tokens', async function () {
+    const slot = '34';
+    const nullAddress = ethers.toBeHex(0, 20);
+    const tokenId = ethers.toBeHex('0x' + slot + nullAddress.substring(2), 32);
+    await expect(erc721.ownerOf(tokenId))
+    .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+    .withArgs(tokenId);
+  });
+
+  it('initOwner decodes as expected', async function () {
+    let slot = '111';
+    let tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.initOwner(tokenId)).to.equal(addr1.address);
+
+    slot = '';
+    tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.initOwner(tokenId)).to.equal(addr1.address);
+
+    slot = '';
+    tokenId = ethers.toBeHex('0x' + slot + addr2.address.substring(2), 32);
+    expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
+
+    slot = '';
+    const nullAddress = ethers.toBeHex(0, 20);
+    tokenId = ethers.toBeHex('0x' + slot + nullAddress.substring(2), 32);
+    expect(await erc721.initOwner(tokenId)).to.equal(nullAddress);
+
+    const largestSlot = ethers.toBeHex(2n ** 96n - 1n, 12);
+    tokenId = ethers.toBeHex('0x' + largestSlot.substring(2) + addr2.address.substring(2), 32);
+    expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
+  });
 
   it('Owner of the asset should be able to transfer his asset', async function () {
     const slot = '111';
