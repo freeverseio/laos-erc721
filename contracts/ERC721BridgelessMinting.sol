@@ -15,6 +15,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 // TODO: implement burn
 // TODO: check exists() usage
 
+// consider inheriting less than ERC721, since mint is not needed
 contract ERC721BridgelessMinting is ERC721 {
 
     mapping(uint256 tokenId => bool) public isBurnedToken;

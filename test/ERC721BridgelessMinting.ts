@@ -8,7 +8,6 @@ import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721Brid
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
-// TODO: transfer to 0
 // TODO: burn
 // TODO: exists
 // owner of 0
@@ -16,7 +15,7 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
 describe('ERC721LAOS', function () {
 
-  const defaultBalance = 2n ** 96n;
+  const maxBalance = 2n ** 96n;
 
   let owner: HardhatEthersSigner;
   let addr1: HardhatEthersSigner;
@@ -100,26 +99,24 @@ describe('ERC721LAOS', function () {
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
-    expect(await erc721.balanceOf(addr1.address)).to.equal(defaultBalance);
-    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+    expect(await erc721.balanceOf(addr2.address)).to.equal(maxBalance);
 
     await expect(erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId))
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, addr2.address, tokenId);
-    const OwnerOfToken2 = await erc721.ownerOf(tokenId);
-    expect(OwnerOfToken2).to.equal(addr2.address);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr2.address);
 
-    expect(await erc721.balanceOf(addr1.address)).to.equal(defaultBalance);
-    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+    expect(await erc721.balanceOf(addr2.address)).to.equal(maxBalance);
 
     await expect(erc721.connect(addr2).transferFrom(addr2.address, addr3.address, tokenId))
       .to.emit(erc721, 'Transfer')
       .withArgs(addr2.address, addr3.address, tokenId);
-    const ownerOfToken3 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken3).to.equal(addr3.address);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr3.address);
 
-    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
-    expect(await erc721.balanceOf(addr3.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr2.address)).to.equal(maxBalance);
+    expect(await erc721.balanceOf(addr3.address)).to.equal(maxBalance);
   });
 
   it('Owner of the asset cannot transfer to null address', async function () {
