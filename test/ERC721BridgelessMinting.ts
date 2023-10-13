@@ -130,16 +130,13 @@ describe('ERC721LAOS', function () {
     )
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, receiverContractAddress, tokenId);
-      expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
+    expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
     });
 
-  return
-
-
   it('When Owner of the asset does safe transfer the receiver contract reverts on call', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMockFactory = await ethers.getContractFactory('ERC721ReceiverMock');
     erc721Receiver = await ERC721ReceiverMockFactory.deploy(RECEIVER_MAGIC_VALUE, RevertType.RevertWithMessage);
@@ -152,9 +149,9 @@ describe('ERC721LAOS', function () {
   });
 
   it('When Owner of the asset does safe transfer with data the receiver contract reverts on call', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMockFactory = await ethers.getContractFactory('ERC721ReceiverMock');
     erc721Receiver = await ERC721ReceiverMockFactory.deploy(RECEIVER_MAGIC_VALUE, RevertType.RevertWithMessage);
@@ -166,44 +163,5 @@ describe('ERC721LAOS', function () {
         .connect(addr1)
         .safeTransferFrom(addr1.address, receiverContractAddress, tokenId, '0x43', { gasLimit: 300000 })
     ).to.be.revertedWith('ERC721ReceiverMock: reverting');
-  });
-
-  it('Default operator should be able to transfer token', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
-
-    await expect(erc721.connect(owner).setDefaultOperator(defaultOperator.address))
-      .to.emit(erc721, 'SetDefaultOperator')
-      .withArgs(defaultOperator.address);
-
-    const isApproved = await erc721.isApprovedForAll(ownerOfToken1, defaultOperator.address);
-    expect(isApproved).to.equal(true);
-
-    await expect(erc721.connect(defaultOperator).transferFrom(addr1.address, addr2.address, tokenId))
-      .to.emit(erc721, 'Transfer')
-      .withArgs(addr1.address, addr2.address, tokenId);
-    const ownerOfToken2 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken2).to.equal(addr2.address);
-  });
-
-  it('Default operator cannot be zeroAddress', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
-
-    await expect(erc721.connect(owner).setDefaultOperator(ethers.ZeroAddress)).to.rejectedWith(
-      'defaultOperator cannot be 0x0 address'
-    );
-  });
-
-  it('Default operator can be set only by contract owner', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
-
-    await expect(erc721.connect(addr1).setDefaultOperator(defaultOperator.address))
-      .to.be.revertedWithCustomError(erc721, 'OwnableUnauthorizedAccount')
-      .withArgs(addr1.address);
   });
 });
