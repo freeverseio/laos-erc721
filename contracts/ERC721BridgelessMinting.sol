@@ -14,6 +14,13 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract ERC721BridgelessMinting is ERC721 {
 
+    /**
+     * @notice Event emitted on contract deployment
+     * @param newContractAddress the address of the newly deployed contract
+     * @param baseURI the baseURI string provided on the deploy transaction
+     */
+    event NewERC721BridgelessMinting(address newContractAddress, string baseURI);
+
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
 
@@ -26,6 +33,7 @@ contract ERC721BridgelessMinting is ERC721 {
         string memory baseURI_
     ) ERC721(name, symbol) {
         baseURI = baseURI_;
+        emit NewERC721BridgelessMinting(address(this), baseURI_);
     }
 
     /**

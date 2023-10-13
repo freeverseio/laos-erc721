@@ -41,6 +41,14 @@ describe('ERC721BridgelessMinting', function () {
     await erc721.waitForDeployment();
   });
 
+  it('Should emit expected event on deploy', async function () {
+    const deployedTx = erc721.deploymentTransaction();
+    const deployedAddress = await erc721.getAddress();
+    await expect(deployedTx)
+      .to.emit(erc721, 'NewERC721BridgelessMinting')
+      .withArgs(deployedAddress, defaultURI);
+  });
+
   it('Should have the correct name and symbol', async function () {
     const name = await erc721.name();
     const symbol = await erc721.symbol();
