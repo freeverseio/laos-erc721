@@ -11,7 +11,7 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 // TODO: burn can be executed by approved operator
 // add linting
 
-describe('ERC721LAOS', function () {
+describe('ERC721BridgelessMinting', function () {
 
   const maxBalance = 2n ** 96n;
   const defaultURI = 'evochain1/collectionId/';
