@@ -158,7 +158,41 @@ describe('ERC721LAOS', function () {
       .withArgs(tokenId);
   });
 
-  it('Owner of the asset cannot transfer to null address', async function () {
+  it('Burned asset has no owner - query must fail', async function () {
+    const nullAddress = ethers.toBeHex(0, 20);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.emit(erc721, 'Transfer')
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    await expect(erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
+
+    await expect(erc721.ownerOf(tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
+  });
+
+  it('Burned asset has no tokenURI - query must fail', async function () {
+    const nullAddress = ethers.toBeHex(0, 20);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.emit(erc721, 'Transfer')
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    await expect(erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
+
+    await expect(erc721.tokenURI(tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
+  });
+
+  it('Owner of the asset cannot transfer to null address via transfer method', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
