@@ -15,7 +15,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 // TODO: implement burn
 // TODO: check exists() usage
 
-// consider inheriting less than ERC721, since mint is not needed
+// consider inheriting less than ERC721, since:
+// mint is not needed
 contract ERC721BridgelessMinting is ERC721 {
 
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -51,30 +52,6 @@ contract ERC721BridgelessMinting is ERC721 {
         address _storageOwner = super._ownerOf(tokenId);
         return (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
-
-    // /**
-    //  * @dev The function overrides the one in the base ERC721 contract to
-    //  * assign a default balance of 2^97-1 to the 'from' and 'to' addresses,
-    //  * given that no transfers have been made by them so far.
-    //  */
-    // function transferFrom(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) public override {
-    //     if (!addressTransferredOnce[from]) {
-    //         super._increaseBalance(from, defaultBalance);
-    //         addressTransferredOnce[from] = true;
-    //     }
-
-    //     if (!addressTransferredOnce[to]) {
-    //         super._increaseBalance(to, defaultBalance);
-    //         addressTransferredOnce[to] = true;
-    //     }
-
-    //     super.transferFrom(from, to, tokenId);
-    //     tokenTransferredOnce[tokenId] = true;
-    // }
 
     /**
      * @dev The function overrides the one from the base ERC721 contract to

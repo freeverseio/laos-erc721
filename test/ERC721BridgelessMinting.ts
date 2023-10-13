@@ -16,6 +16,7 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 describe('ERC721LAOS', function () {
 
   const maxBalance = 2n ** 96n;
+  const defaultURI = 'evochain1/collectionId/';
 
   let owner: HardhatEthersSigner;
   let addr1: HardhatEthersSigner;
@@ -37,7 +38,7 @@ describe('ERC721LAOS', function () {
     erc721 = await ERC721BridgelessMintingFactory.deploy(
       'laos-kitties',
       'LAK',
-      'evochain1/collectionId/'
+      defaultURI
     );
     await erc721.waitForDeployment();
   });
@@ -52,8 +53,12 @@ describe('ERC721LAOS', function () {
 
   it('Should return correct tokenURI', async function () {
     const tokenId = 1;
-    const tokenURI = await erc721.tokenURI(tokenId);
-    expect(await erc721.tokenURI(tokenId)).to.equal('evochain1/collectionId/1');
+    expect(await erc721.tokenURI(tokenId)).to.equal(defaultURI + tokenId);
+
+    const slot = '34';
+    const largeTokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    const largeTokenIdAsUint256 = ethers.toBigInt(largeTokenId);
+    expect(await erc721.tokenURI(largeTokenId)).to.equal(defaultURI + largeTokenIdAsUint256.toString());
   });
 
   it('Should return the initial owner of the token if it is not transferred yet', async function () {
