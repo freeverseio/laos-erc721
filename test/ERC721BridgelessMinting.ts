@@ -8,9 +8,7 @@ import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721Brid
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
-// TODO: burn
-// TODO: exists
-// owner of 0
+// TODO: burn, test trasnfer of burned
 // add linting
 
 describe('ERC721LAOS', function () {
@@ -72,8 +70,8 @@ describe('ERC721LAOS', function () {
     const nullAddress = ethers.toBeHex(0, 20);
     const tokenId = ethers.toBeHex('0x' + slot + nullAddress.substring(2), 32);
     await expect(erc721.ownerOf(tokenId))
-    .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
-    .withArgs(tokenId);
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
   });
 
   it('initOwner decodes as expected', async function () {
@@ -99,7 +97,7 @@ describe('ERC721LAOS', function () {
     expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
   });
 
-  it('Owner of the asset should be able to transfer his asset', async function () {
+  it('Owner of the asset should be able to transfer asset', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
@@ -124,6 +122,25 @@ describe('ERC721LAOS', function () {
     expect(await erc721.balanceOf(addr3.address)).to.equal(maxBalance);
   });
 
+  it('Owner of the asset should be burn asset', async function () {
+    const nullAddress = ethers.toBeHex(0, 20);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.emit(erc721, 'Transfer')
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    await expect(erc721.ownerOf(tokenId))
+      .to.be.revertedWithCustomError(erc721, 'ERC721NonexistentToken')
+      .withArgs(tokenId);
+
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+  });
+
   it('Owner of the asset cannot transfer to null address', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
@@ -146,7 +163,7 @@ describe('ERC721LAOS', function () {
   });
 
 
-  it('Owner of the asset should be able to do safe transfer of his asset', async function () {
+  it('Owner of the asset should be able to do safe transfer of asset', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
@@ -162,7 +179,7 @@ describe('ERC721LAOS', function () {
     expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
   });
 
-  it('Owner of the asset should be able to do safe transfer of his asset with data', async function () {
+  it('Owner of the asset should be able to do safe transfer of asset with data', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);

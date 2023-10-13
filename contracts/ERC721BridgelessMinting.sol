@@ -13,7 +13,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  */
 
 // TODO: implement burn
-// TODO: check exists() usage
 
 // consider inheriting less than ERC721, since:
 // mint is not needed
@@ -29,6 +28,20 @@ contract ERC721BridgelessMinting is ERC721 {
         string memory baseURI_
     ) ERC721(name, symbol) {
         baseURI = baseURI_;
+    }
+
+    /**
+     * @dev Burns `tokenId`
+     *
+     * Requirements:
+     *
+     * - The caller must own `tokenId` or be an approved operator.
+     */
+    function burn(uint256 tokenId) public virtual {
+        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+        _update(address(0), tokenId, _msgSender());
+        isBurnedToken[tokenId] = true;
     }
 
     /**
