@@ -2,29 +2,30 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "../contracts/IERC721BridgelessMinting.sol";
 
 /**
- * @title The contract used for bridgeless minting of ERC721 tokens
+ * @title Contract for bridgeless minting of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
- * @dev The contract is an extension of OpenZeppelin ERC721 and Ownable contracts
- * @dev The contract pre-mints 2^96 assets (slots) for each address.
+ * @dev The contract is an extension of OpenZeppelin ERC721
+ * @dev The contract allocates 2^96 slots to every possible 160b address,
+ * @dev to be filled in the Evolution consensus system
  * @dev The contract has possibility of adding default operator that can change asset ownership
  */
-contract ERC721BridgelessMinting is ERC721, Ownable, IERC721BridgelessMinting {
-    mapping(uint256 tokenId => bool) private tokenTransferredOnce;
-    mapping(address owner => bool) private addressTransferredOnce;
+
+// TODO: implement burn
+// TODO: check exists() usage
+
+contract ERC721BridgelessMinting is ERC721 {
+
+    mapping(uint256 tokenId => bool) public isBurnedToken;
+
     string public baseURI;
-    address public defaultOperator;
-    uint128 private constant defaultBalance = 2 ** 97 - 1;
 
     constructor(
-        address initialOwner,
         string memory name,
         string memory symbol,
         string memory baseURI_
-    ) ERC721(name, symbol) Ownable(initialOwner) {
+    ) ERC721(name, symbol) {
         baseURI = baseURI_;
     }
 
@@ -39,74 +40,59 @@ contract ERC721BridgelessMinting is ERC721, Ownable, IERC721BridgelessMinting {
     /**
      * @dev The function overrides the one in the base ERC721 contract,
      * and it returns the asset's correct owner if the asset has never been previously transferred.
+     * TODO: review and add params
      */
     function _ownerOf(
         uint256 tokenId
     ) internal view override returns (address) {
-        if (!tokenTransferredOnce[tokenId]) {
-            return address(uint160(tokenId));
-        }
-        return super._ownerOf(tokenId);
+        if (isBurnedToken[tokenId]) return address(0);
+
+        address _storageOwner = super._ownerOf(tokenId);
+        return (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
 
-    /**
-     * @dev The function overrides the one in the base ERC721 contract to
-     * assign a default balance of 2^97-1 to the 'from' and 'to' addresses,
-     * given that no transfers have been made by them so far.
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override {
-        if (!addressTransferredOnce[from]) {
-            super._increaseBalance(from, defaultBalance);
-            addressTransferredOnce[from] = true;
-        }
+    // /**
+    //  * @dev The function overrides the one in the base ERC721 contract to
+    //  * assign a default balance of 2^97-1 to the 'from' and 'to' addresses,
+    //  * given that no transfers have been made by them so far.
+    //  */
+    // function transferFrom(
+    //     address from,
+    //     address to,
+    //     uint256 tokenId
+    // ) public override {
+    //     if (!addressTransferredOnce[from]) {
+    //         super._increaseBalance(from, defaultBalance);
+    //         addressTransferredOnce[from] = true;
+    //     }
 
-        if (!addressTransferredOnce[to]) {
-            super._increaseBalance(to, defaultBalance);
-            addressTransferredOnce[to] = true;
-        }
+    //     if (!addressTransferredOnce[to]) {
+    //         super._increaseBalance(to, defaultBalance);
+    //         addressTransferredOnce[to] = true;
+    //     }
 
-        super.transferFrom(from, to, tokenId);
-        tokenTransferredOnce[tokenId] = true;
-    }
-
-    /**
-     * @dev The function overrides the one from the base ERC721 contract to
-     * enable support for the defaultOperator feature
-     */
-    function isApprovedForAll(
-        address owner,
-        address operator
-    ) public view override returns (bool) {
-        if (operator != address(0) && operator == defaultOperator) {
-            return true;
-        }
-        return super.isApprovedForAll(owner, operator);
-    }
+    //     super.transferFrom(from, to, tokenId);
+    //     tokenTransferredOnce[tokenId] = true;
+    // }
 
     /**
      * @dev The function overrides the one from the base ERC721 contract to
      * ensure that the defaultBalance is returned when the owner has not made
      * any asset transfers previously.
      */
-    function balanceOf(address owner) public view override returns (uint256) {
-        if (!addressTransferredOnce[owner]) {
-            return defaultBalance;
-        }
-        return super.balanceOf(owner);
+    function balanceOf(address owner) public pure override returns (uint256) {
+        return 2**96;
     }
 
-    /// @inheritdoc IERC721BridgelessMinting
-    function setDefaultOperator(address defaultOperator_) external onlyOwner {
-        require(
-            defaultOperator_ != address(0),
-            "defaultOperator cannot be 0x0 address"
-        );
-        defaultOperator = defaultOperator_;
-
-        emit SetDefaultOperator(defaultOperator_);
+// TODO: add comment
+    function initOwner(uint256 tokenId)
+        public
+        pure
+        returns (address)
+    {
+        return
+            address(uint160(tokenId));
     }
+
+    
 }

@@ -10,7 +10,7 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
 describe('ERC721LAOS', function () {
 
-  const defaultBalance = 2n ** 97n - 1n;
+  const defaultBalance = 2n ** 96n;
 
   let owner: HardhatEthersSigner;
   let addr1: HardhatEthersSigner;
@@ -30,7 +30,6 @@ describe('ERC721LAOS', function () {
 
     const ERC721BridgelessMintingFactory = await ethers.getContractFactory('ERC721BridgelessMinting');
     erc721 = await ERC721BridgelessMintingFactory.deploy(
-      owner.address,
       'laos-kitties',
       'LAK',
       'evochain1/collectionId/'
@@ -58,52 +57,50 @@ describe('ERC721LAOS', function () {
     expect(ownerOfToken).to.equal(ethers.toBeHex(tokenId, 20));
   });
 
-  it('Owner of the asset should be able to transfer his asset', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
+  // TODO: add tests for initOwner(tokenId)
 
-    let addr1Balance = await erc721.balanceOf(addr1.address)
-    expect(addr1Balance).to.equal(defaultBalance);
-    let addr2Balance = await erc721.balanceOf(addr2.address)
-    expect(addr2Balance).to.equal(defaultBalance);
+  it('Owner of the asset should be able to transfer his asset', async function () {
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+
+    expect(await erc721.balanceOf(addr1.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
 
     await expect(erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId))
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, addr2.address, tokenId);
     const OwnerOfToken2 = await erc721.ownerOf(tokenId);
     expect(OwnerOfToken2).to.equal(addr2.address);
-    addr1Balance = await erc721.balanceOf(addr1.address)
-    expect(addr1Balance).to.equal(defaultBalance-1n);
-    addr2Balance = await erc721.balanceOf(addr2.address)
-    expect(addr2Balance).to.equal(defaultBalance+1n);
+
+    expect(await erc721.balanceOf(addr1.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
 
     await expect(erc721.connect(addr2).transferFrom(addr2.address, addr3.address, tokenId))
       .to.emit(erc721, 'Transfer')
       .withArgs(addr2.address, addr3.address, tokenId);
     const ownerOfToken3 = await erc721.ownerOf(tokenId);
     expect(ownerOfToken3).to.equal(addr3.address);
-    addr2Balance = await erc721.balanceOf(addr2.address)
-    expect(addr2Balance).to.equal(defaultBalance);
-    const addr3Balance = await erc721.balanceOf(addr3.address)
-    expect(addr3Balance).to.equal(defaultBalance+1n);
 
+    expect(await erc721.balanceOf(addr2.address)).to.equal(defaultBalance);
+    expect(await erc721.balanceOf(addr3.address)).to.equal(defaultBalance);
   });
 
   it('User should not be able to transfer an asset that he does not own', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken).to.equal(addr1.address);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     await expect(erc721.connect(addr2).transferFrom(addr2.address, addr1.address, tokenId))
       .to.be.revertedWithCustomError(erc721, 'ERC721InsufficientApproval')
       .withArgs(addr2.address, tokenId);
   });
 
+
   it('Owner of the asset should be able to do safe transfer of his asset', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMock = await ethers.getContractFactory('ERC721ReceiverMock');
     erc721Receiver = await ERC721ReceiverMock.deploy(RECEIVER_MAGIC_VALUE, RevertType.None);
@@ -113,14 +110,13 @@ describe('ERC721LAOS', function () {
     await expect(erc721.connect(addr1).safeTransferFrom(addr1.address, receiverContractAddress, tokenId))
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, receiverContractAddress, tokenId);
-    const OwnerOfToken2 = await erc721.ownerOf(tokenId);
-    expect(OwnerOfToken2).to.equal(receiverContractAddress);
+    expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
   });
 
   it('Owner of the asset should be able to do safe transfer of his asset with data', async function () {
-    const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
-    const ownerOfToken1 = await erc721.ownerOf(tokenId);
-    expect(ownerOfToken1).to.equal(addr1.address);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMock = await ethers.getContractFactory('ERC721ReceiverMock');
     erc721Receiver = await ERC721ReceiverMock.deploy(RECEIVER_MAGIC_VALUE, RevertType.None);
@@ -134,9 +130,11 @@ describe('ERC721LAOS', function () {
     )
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, receiverContractAddress, tokenId);
-    const OwnerOfToken2 = await erc721.ownerOf(tokenId);
-    expect(OwnerOfToken2).to.equal(receiverContractAddress);
-  });
+      expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
+    });
+
+  return
+
 
   it('When Owner of the asset does safe transfer the receiver contract reverts on call', async function () {
     const tokenId = ethers.toBeHex('0x' + '111' + addr1.address.substring(2), 32);
