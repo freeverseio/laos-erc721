@@ -122,6 +122,17 @@ describe('ERC721LAOS', function () {
     expect(await erc721.balanceOf(addr3.address)).to.equal(defaultBalance);
   });
 
+  it('Owner of the asset cannot transfer to null address', async function () {
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(erc721.connect(addr2).transferFrom(addr2.address, nullAddress, tokenId))
+    .to.be.revertedWithCustomError(erc721, 'ERC721InvalidReceiver')
+    .withArgs(nullAddress);
+  });
+
   it('User should not be able to transfer an asset that he does not own', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
