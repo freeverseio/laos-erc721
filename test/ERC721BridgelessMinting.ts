@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-import { Enum } from '../utils/enums.ts';
+import { RevertType } from '../utils/enums.ts';
 
 import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721BridgelessMinting.js';
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
@@ -16,21 +16,19 @@ describe('ERC721BridgelessMinting', function () {
   const maxBalance = 2n ** 96n;
   const defaultURI = 'evochain1/collectionId/';
 
-  let owner: HardhatEthersSigner;
   let addr1: HardhatEthersSigner;
   let addr2: HardhatEthersSigner;
   let addr3: HardhatEthersSigner;
-  let defaultOperator: HardhatEthersSigner;
 
   let erc721: ERC721BridgelessMinting;
   let erc721Receiver: ERC721ReceiverMock;
 
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
-  const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
+//  const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
   // Deploy the contract and prepare accounts
   beforeEach(async function () {
-    [owner, addr1, addr2, addr3, defaultOperator] = await ethers.getSigners();
+    [addr1, addr2, addr3] = await ethers.getSigners();
 
     const ERC721BridgelessMintingFactory = await ethers.getContractFactory('ERC721BridgelessMinting');
     erc721 = await ERC721BridgelessMintingFactory.deploy(

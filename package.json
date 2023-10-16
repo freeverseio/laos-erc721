@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "lint": "eslint . --ext .ts"
   },
   "author": "",
   "license": "MIT",
@@ -14,6 +15,9 @@
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/test-helpers": "^0.5.16",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
+    "eslint": "^8.51.0",
     "ethers": "^6.7.1",
     "hardhat": "^2.18.0",
     "prettier": "^3.0.3",
