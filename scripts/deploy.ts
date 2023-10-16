@@ -1,18 +1,22 @@
-import { ethers } from 'hardhat';
+import { ethers } from "hardhat";
 
 async function main() {
-  const tokenName = 'laos-kitties';
-  const tokenSymbol = 'LAK';
-  const baseURI = 'evochain1/collectionId/';
+  const tokenName = "laos-kitties";
+  const tokenSymbol = "LAK";
+  const baseURI = "evochain1/collectionId/";
 
-  console.log(
-    "Deploying contracts with the account:",
-    );
+  console.log("Deploying contracts with the account:");
 
-  const ContractFactory = await ethers.getContractFactory('ERC721BridgelessMinting');
+  const ContractFactory = await ethers.getContractFactory(
+    "ERC721BridgelessMinting",
+  );
 
   // TODO: Set addresses for the contract arguments below
-  const instance = await ContractFactory.deploy(tokenName, tokenSymbol, baseURI);
+  const instance = await ContractFactory.deploy(
+    tokenName,
+    tokenSymbol,
+    baseURI,
+  );
   await instance.waitForDeployment();
 
   console.log(`Contract deployed to ${await instance.getAddress()}`);

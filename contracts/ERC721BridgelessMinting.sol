@@ -11,15 +11,16 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  * @dev to be filled in the Evolution consensus system
  * @dev The contract has possibility of adding default operator that can change token ownership
  */
-
 contract ERC721BridgelessMinting is ERC721 {
-
     /**
      * @notice Event emitted on contract deployment
      * @param newContractAddress the address of the newly deployed contract
      * @param baseURI the baseURI string provided on the deploy transaction
      */
-    event NewERC721BridgelessMinting(address newContractAddress, string baseURI);
+    event NewERC721BridgelessMinting(
+        address newContractAddress,
+        string baseURI
+    );
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -38,7 +39,6 @@ contract ERC721BridgelessMinting is ERC721 {
 
     /**
      * @notice Burns `tokenId`
-     *
      * @dev The caller must own `tokenId` or be an approved operator.
      *
      * @param tokenId the id of the token to be burned
@@ -51,41 +51,34 @@ contract ERC721BridgelessMinting is ERC721 {
     }
 
     /**
-     * @notice Returns the amount of tokens owned by an address 
+     * @notice Returns the amount of tokens owned by an address
      * @dev This function overrides the one from the base ERC721 contract to
      * ensure that the maxBalance is always returned, since all slots are allocated
      * on deploy, and tradable.
-     *
      * @param owner the address of the owner for which the balance is queried
      * @return the balance of the owner provided in the query
      */
     function balanceOf(address owner) public pure override returns (uint256) {
-        return 2**96;
+        return 2 ** 96;
     }
 
     /**
-     * @notice Returns the initial owner address which is encoded in the tokenId 
+     * @notice Returns the initial owner address which is encoded in the tokenId
      * @dev This function returns the same value regardless of whether the token
-     *  has been transferred once or more times.
-     *  Use ownerOf() to query current owner of an token, as opposed to the
-     *  init owner. 
-     *  The init owner are encoded as the right-most 160 bit of tokenId 
-     *
+     * has been transferred once or more times.
+     * Use ownerOf() to query current owner of an token, as opposed to the
+     * init owner. The init owner are encoded as the right-most 160 bit of tokenId
      * @param tokenId the id of the token for which the initial owner is queried
      * @return the initial owner of the token
      */
-    function initOwner(uint256 tokenId)
-        public
-        pure
-        returns (address)
-    {
+    function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
     }
 
     /**
      * @notice Returns the baseURI used to build the tokenURI
      * @dev The function overrides the one in the base ERC721 contract,
-     *  to return the correct baseURI. 
+     * to return the correct baseURI.
      * @return the baseURI used to build the tokenURI
      */
     function _baseURI() internal view override returns (string memory) {
@@ -96,7 +89,6 @@ contract ERC721BridgelessMinting is ERC721 {
      * @notice Returns the current owner of a token
      * @dev The function overrides the one in the base ERC721 contract,
      *  and it returns the token's correct owner if the token has never been previously transferred.
-     * 
      * @param tokenId the id of the token for which the owner is queried
      * @return the current owner of the token
      */
@@ -105,6 +97,7 @@ contract ERC721BridgelessMinting is ERC721 {
     ) internal view override returns (address) {
         if (isBurnedToken[tokenId]) return address(0);
         address _storageOwner = super._ownerOf(tokenId);
-        return (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
+        return
+            (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
 }
