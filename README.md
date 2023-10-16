@@ -43,7 +43,7 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 
 ### Verifying Contract
 
-The following command can be used toverify the deployed contracts on [etherscan](https://etherscan.io/) or any other EVM scan (e.g [Polygonscan](https://polygonscan.com/)):
+The following command can be used to verify the deployed contracts on [etherscan](https://etherscan.io/) or any other EVM scan (e.g [Polygonscan](https://polygonscan.com/)):
 
 ```bash
 npx hardhat verify --network <network-name> <contract-address> <contract-deploy-arguments>
@@ -53,6 +53,6 @@ Make sure to obtain the corresponding API_KEY, and set it in the `.hardhat.confi
 
 ## Additional resources
 
-- **LAOS Whitepaper**: For a comprehensive understanding of the LAOS project, you can review the [whitepaper](https://github.com/freeverseio/laos-whitepaper)
+- **LAOS Whitepaper**: For a comprehensive understanding of the LAOS project, please review the [whitepaper](https://github.com/freeverseio/laos-whitepaper)
 
 - **LAOS Roadmap**: To explore the future plans and updates for LAOS, visit the [roadmap](https://github.com/freeverseio/laos-roadmap)
