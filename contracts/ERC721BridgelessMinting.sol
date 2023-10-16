@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  * @title Contract for bridgeless minting of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
  * @dev The contract is an extension of OpenZeppelin ERC721
- * @dev The contract allocates 2^96 slots to every possible 160b address, to be filled in the Evolution consensus system except for the null address, which cannot own any slot; the null address is used only as the implicit target address when executing the burn method"
+ * @dev The contract allocates 2^96 slots to every possible 160b address, to be filled in the Evolution consensus system except for the null address, which cannot own any slot
+ * @dev the null address is used only as the implicit target address when executing the burn method"
  * @dev The contract has the possibility of adding default operator that can chang token ownership
  */
 contract ERC721BridgelessMinting is ERC721 {
