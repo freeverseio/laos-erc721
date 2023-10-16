@@ -8,11 +8,7 @@ import { ERC721BridgelessMinting } from '../typechain-types/contracts/ERC721Brid
 import { ERC721ReceiverMock } from '../typechain-types/contracts/tests/ERC721ReceiverMock.js';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 
-// TODO: burn can be executed by approved operator
-// add linting
-
 describe('ERC721BridgelessMinting', function () {
-
   const maxBalance = 2n ** 96n;
   const defaultURI = 'evochain1/collectionId/';
 
@@ -24,27 +20,20 @@ describe('ERC721BridgelessMinting', function () {
   let erc721Receiver: ERC721ReceiverMock;
 
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
-//  const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
   // Deploy the contract and prepare accounts
   beforeEach(async function () {
     [addr1, addr2, addr3] = await ethers.getSigners();
 
     const ERC721BridgelessMintingFactory = await ethers.getContractFactory('ERC721BridgelessMinting');
-    erc721 = await ERC721BridgelessMintingFactory.deploy(
-      'laos-kitties',
-      'LAK',
-      defaultURI
-    );
+    erc721 = await ERC721BridgelessMintingFactory.deploy('laos-kitties', 'LAK', defaultURI);
     await erc721.waitForDeployment();
   });
 
   it('Should emit expected event on deploy', async function () {
     const deployedTx = erc721.deploymentTransaction();
     const deployedAddress = await erc721.getAddress();
-    await expect(deployedTx)
-      .to.emit(erc721, 'NewERC721BridgelessMinting')
-      .withArgs(deployedAddress, defaultURI);
+    await expect(deployedTx).to.emit(erc721, 'NewERC721BridgelessMinting').withArgs(deployedAddress, defaultURI);
   });
 
   it('Should have the correct name and symbol', async function () {
@@ -147,6 +136,24 @@ describe('ERC721BridgelessMinting', function () {
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
   });
 
+  it('burn can be executed by approved operator', async function () {
+    const nullAddress = ethers.toBeHex(0, 20);
+    const slot = '111';
+    const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
+    expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+
+    await expect(erc721.connect(addr1).setApprovalForAll(addr2.address, true))
+      .to.emit(erc721, 'ApprovalForAll')
+      .withArgs(addr1.address, addr2.address, true);
+
+    await expect(erc721.connect(addr2).burn(tokenId))
+      .to.emit(erc721, 'Transfer')
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
+  });
+
   it('Asset cannot be burned by address that is not its owner', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
@@ -244,7 +251,6 @@ describe('ERC721BridgelessMinting', function () {
       .withArgs(addr2.address, tokenId);
   });
 
-
   it('Owner of the asset should be able to do safe transfer of asset', async function () {
     const slot = '111';
     const tokenId = ethers.toBeHex('0x' + slot + addr1.address.substring(2), 32);
@@ -279,7 +285,7 @@ describe('ERC721BridgelessMinting', function () {
       .to.emit(erc721, 'Transfer')
       .withArgs(addr1.address, receiverContractAddress, tokenId);
     expect(await erc721.ownerOf(tokenId)).to.equal(receiverContractAddress);
-    });
+  });
 
   it('When Owner of the asset does safe transfer the receiver contract reverts on call', async function () {
     const slot = '111';
