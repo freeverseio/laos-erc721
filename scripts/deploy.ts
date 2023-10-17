@@ -11,7 +11,6 @@ async function main() {
     "ERC721BridgelessMinting",
   );
 
-  // TODO: Set addresses for the contract arguments below
   const instance = await ContractFactory.deploy(
     tokenName,
     tokenSymbol,
