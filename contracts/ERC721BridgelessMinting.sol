@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  *  cannot own any slot
  * @dev the null address is used only as the implicit target address when
  *  executing the burn method"
- *  chang token ownership
  */
 contract ERC721BridgelessMinting is ERC721 {
     /**
