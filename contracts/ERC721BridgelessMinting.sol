@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  *  filled in the Evolution consensus system except for the null address, which
  *  cannot own any slot
  * @dev the null address is used only as the implicit target address when
- *  executing the burn method"
+ *  executing the burn method
  */
 contract ERC721BridgelessMinting is ERC721 {
     /**
