@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  *  cannot own any slot
  * @dev the null address is used only as the implicit target address when
  *  executing the burn method"
- * @dev The contract has the possibility of adding default operator that can
  *  chang token ownership
  */
 contract ERC721BridgelessMinting is ERC721 {
@@ -71,7 +70,7 @@ contract ERC721BridgelessMinting is ERC721 {
      * token has been transferred once or more times.
      * @dev Use ownerOf() to query current owner of an token, as opposed to the
      *  init owner.
-     * @dev The init owner are encoded as the right-most 160 bit of tokenId
+     * @dev The init owner is encoded as the right-most 160 bit of tokenId
      * @param tokenId the id of the token for which the initial owner is queried
      * @return the initial owner of the token
      */
