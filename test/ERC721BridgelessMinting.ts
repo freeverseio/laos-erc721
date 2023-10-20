@@ -36,6 +36,30 @@ describe("ERC721BridgelessMinting", function () {
     await erc721.waitForDeployment();
   });
 
+  it("Should support standard ERC721 interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    const specified721Id = "0x80ac58cd";
+    expect(await interfaceId.getERC721Id()).to.equal(specified721Id);
+    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
+  });
+
+  it("Should support bridgeless minting ERC721 interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    const specified721BridgelessId = "0x57854508";
+    expect(await interfaceId.getERC721BridgelessMintingId()).to.equal(specified721BridgelessId);
+    expect(await erc721.supportsInterface(specified721BridgelessId)).to.equal(true);
+  });
+
   it("Should emit expected event on deploy", async function () {
     const deployedTx = erc721.deploymentTransaction();
     const deployedAddress = await erc721.getAddress();
