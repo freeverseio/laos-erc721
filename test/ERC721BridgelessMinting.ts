@@ -48,6 +48,13 @@ describe("ERC721BridgelessMinting", function () {
     expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
   });
 
+  it("Should support standard ERC165 interface", async function () {
+    const mustReplyTrue = "0x01ffc9a7";
+    const mustReplyFalse = "0xffffffff";
+    expect(await erc721.supportsInterface(mustReplyTrue)).to.equal(true);
+    expect(await erc721.supportsInterface(mustReplyFalse)).to.equal(false);
+  });
+
   it("Should support bridgeless minting ERC721 interface", async function () {
     const InterfaceIdFactory = await ethers.getContractFactory(
       "InterfaceId",
