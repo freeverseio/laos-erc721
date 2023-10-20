@@ -43,6 +43,7 @@ describe("ERC721BridgelessMinting", function () {
     const interfaceId = await InterfaceIdFactory.deploy();
     await interfaceId.waitForDeployment();
 
+    // We test both directly on the contract, and using the on-chain OpenZeppelin check library:
     const specified721Id = "0x80ac58cd";
     expect(await interfaceId.getERC721Id()).to.equal(specified721Id);
     expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
@@ -55,12 +56,13 @@ describe("ERC721BridgelessMinting", function () {
     );
     const interfaceId = await InterfaceIdFactory.deploy();
     await interfaceId.waitForDeployment();
-    expect(await interfaceId.supportsERC165(await erc721.getAddress())).to.equal(true);
 
+    // We test both directly on the contract, and using the on-chain OpenZeppelin check library:
     const mustReplyTrue = "0x01ffc9a7";
     const mustReplyFalse = "0xffffffff";
     expect(await erc721.supportsInterface(mustReplyTrue)).to.equal(true);
     expect(await erc721.supportsInterface(mustReplyFalse)).to.equal(false);
+    expect(await interfaceId.supportsERC165(await erc721.getAddress())).to.equal(true);
   });
 
   it("Should support bridgeless minting ERC721 interface", async function () {
@@ -70,6 +72,7 @@ describe("ERC721BridgelessMinting", function () {
     const interfaceId = await InterfaceIdFactory.deploy();
     await interfaceId.waitForDeployment();
 
+    // We test both directly on the contract, and using the on-chain OpenZeppelin check library:
     const specified721BridgelessId = "0x57854508";
     expect(await interfaceId.getERC721BridgelessMintingId()).to.equal(specified721BridgelessId);
     expect(await erc721.supportsInterface(specified721BridgelessId)).to.equal(true);
