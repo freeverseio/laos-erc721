@@ -5,6 +5,12 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "../IERC721BridgelessMinting.sol";
 
+/**
+ * @title Test contract for the purpose of verifying the interfaces
+ *  supported by the IERC721BridgelessMinting contract
+ * @author Freeverse.io, www.freeverse.io
+ */
+
 contract InterfaceId {
     function getERC721Id() public pure returns(bytes4) {
         return type(IERC721).interfaceId;

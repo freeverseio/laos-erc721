@@ -7,12 +7,11 @@ import "./IERC721BridgelessMinting.sol";
 /**
  * @title Contract for bridgeless minting of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
- * @dev The contract is an extension of OpenZeppelin ERC721
- * @dev The contract allocates 2^96 slots to every possible 160b address, to be
- *  filled in the Evolution consensus system except for the null address, which
- *  cannot own any slot
- * @dev the null address is used only as the implicit target address when
- *  executing the burn method
+ * @dev This contract is an extension of the OpenZeppelin ERC721 implementation.
+ *  On deploy, this contract allocates 2^96 slots to every possible 160b address,
+ *  which are then filled and evolved in the Mint/Evolution consensus system.
+ *  The null address is the only address that cannot own any slot; as usual,
+ *  it is used as the target address of the transfer executed within the burn method.
  */
 contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
 
