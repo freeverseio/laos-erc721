@@ -5,7 +5,8 @@ async function main() {
   const tokenSymbol = "LAK";
   const baseURI = "evochain1/collectionId/";
 
-  console.log("Deploying contracts with the account:");
+  const accounts = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", accounts[0].address);
 
   const ContractFactory = await ethers.getContractFactory(
     "ERC721BridgelessMinting",

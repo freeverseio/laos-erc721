@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
+import "@nomicfoundation/hardhat-verify";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -31,11 +32,19 @@ const config: HardhatUserConfig = {
       gasPrice: 'auto', // Gas price settings
       accounts: [`0x${privateKey}`],
     },
+
+    polygonMainnet: {
+      url: 'https://polygon-bor.publicnode.com', // URL of your custom network
+      chainId: 137, // The Chain ID of your custom network
+      gas: 'auto', // Gas settings
+      gasPrice: 'auto', // Gas price settings
+      accounts: [`0x${privateKey}`],
+    },
   },
 
   etherscan: {
     apiKey: {
-      polygonMumbai: POLYGONSCAN_KEY,
+      polygon: POLYGONSCAN_KEY,
     },
   },
 };
