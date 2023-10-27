@@ -13,7 +13,7 @@ import "./IERC721Universal.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721UniversalMinting is IERC721Universal, ERC721 {
+contract ERC721Universal is IERC721Universal, ERC721 {
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;

@@ -4,11 +4,11 @@ import { ethers } from "hardhat";
 
 import { RevertType } from "../utils/enums.ts";
 
-import { ERC721UniversalMinting } from "../typechain-types/contracts/ERC721UniversalMinting.js";
+import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js";
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
-describe("ERC721UniversalMinting", function () {
+describe("ERC721Universal", function () {
   const maxBalance = 2n ** 96n;
   const defaultURI = "evochain1/collectionId/";
 
@@ -16,7 +16,7 @@ describe("ERC721UniversalMinting", function () {
   let addr2: HardhatEthersSigner;
   let addr3: HardhatEthersSigner;
 
-  let erc721: ERC721UniversalMinting;
+  let erc721: ERC721Universal;
   let erc721Receiver: ERC721ReceiverMock;
 
   const RECEIVER_MAGIC_VALUE = "0x150b7a02";
@@ -26,7 +26,7 @@ describe("ERC721UniversalMinting", function () {
     [addr1, addr2, addr3] = await ethers.getSigners();
 
     const ERC721UniversalFactory = await ethers.getContractFactory(
-      "ERC721UniversalMinting",
+      "ERC721Universal",
     );
     erc721 = await ERC721UniversalFactory.deploy(
       "laos-kitties",
