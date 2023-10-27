@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./IERC721BridgelessMinting.sol";
+import "./IERC721Universal.sol";
 
 /**
- * @title Contract for bridgeless minting of ERC721 tokens
+ * @title Contract for Universal Minting of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
  * @dev This contract is an extension of the OpenZeppelin ERC721 implementation.
  *  On deploy, this contract allocates 2^96 slots to every possible 160b address,
@@ -13,7 +13,7 @@ import "./IERC721BridgelessMinting.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
+contract ERC721UniversalMinting is IERC721Universal, ERC721 {
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -27,7 +27,7 @@ contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
         string memory baseURI_
     ) ERC721(name, symbol) {
         baseURI = baseURI_;
-        emit NewERC721BridgelessMinting(address(this), baseURI_);
+        emit NewERC721Universal(address(this), baseURI_);
     }
 
     /**
@@ -57,7 +57,7 @@ contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
         return 2 ** 96;
     }
 
-    /// @inheritdoc IERC721BridgelessMinting
+    /// @inheritdoc IERC721Universal
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
     }
@@ -66,13 +66,13 @@ contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
      * @notice Returns true if the contract implements an interface
      * @dev Extends the interfaces specified by the standard ERC721
      *  to additionally respond true when queried about the Id of the
-     *  bridgeless minting interface, which is 0x15132960
+     *  Universal Minting interface, which is 0x15132960
      *  Adheres to the ERC165 standard.
      * @param interfaceId the id of the interface 
      * @return true if this contract implements the interface defined by interfaceId
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC721BridgelessMinting).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC721Universal).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
