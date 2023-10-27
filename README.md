@@ -1,6 +1,6 @@
 # ERC721Universal Template Contract
 
-This repository contains a Solidity ERC721 template contract designed for universal bridgeless minting. The contract is deployable on any EVM-compatible network. On deploy, the contract allocates slots (indexed by a 96b integer) to each possible 160b address. These slots can be filled, equivalent to minting and evolving, on the LAOS evolution chain.
+This repository contains a Solidity ERC721 template contract designed for Universal asset minting and evolution. The contract is deployable on any EVM-compatible network. On deploy, the contract allocates slots (indexed by a 96b integer) to each possible 160b address. These slots can be filled, equivalent to minting and evolving, on the LAOS evolution chain.
 
 To learn more about this pattern, and the overall LAOS architecture,
 please refer to the [Additional Resources](#additional-resources) section.
