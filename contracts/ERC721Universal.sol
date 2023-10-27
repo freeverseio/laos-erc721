@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IERC721Universal.sol";
 
 /**
- * @title Contract for Universal Minting of ERC721 tokens
+ * @title Contract for Universal Minting and Evolution of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
  * @dev This contract is an extension of the OpenZeppelin ERC721 implementation.
  *  On deploy, this contract allocates 2^96 slots to every possible 160b address,

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title Interface to contract for Universal Minting of ERC721 tokens
+ * @title Interface to contract for Universal Minting and Evolution of ERC721 tokens
  * @dev The ERC-165 identifier for this interface is 0x57854508
  * @author Freeverse.io, www.freeverse.io
  */
