@@ -65,7 +65,7 @@ describe("ERC721Universal", function () {
     expect(await interfaceId.supportsERC165(await erc721.getAddress())).to.equal(true);
   });
 
-  it("Should support universal minting ERC721 interface", async function () {
+  it("Should support ERC721Universal interface", async function () {
     const InterfaceIdFactory = await ethers.getContractFactory(
       "InterfaceId",
     );
