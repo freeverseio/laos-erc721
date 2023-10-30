@@ -2,27 +2,18 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./IERC721BridgelessMinting.sol";
 
 /**
  * @title Contract for bridgeless minting of ERC721 tokens
  * @author Freeverse.io, www.freeverse.io
- * @dev The contract is an extension of OpenZeppelin ERC721
- * @dev The contract allocates 2^96 slots to every possible 160b address, to be
- *  filled in the Evolution consensus system except for the null address, which
- *  cannot own any slot
- * @dev the null address is used only as the implicit target address when
- *  executing the burn method
+ * @dev This contract is an extension of the OpenZeppelin ERC721 implementation.
+ *  On deploy, this contract allocates 2^96 slots to every possible 160b address,
+ *  which are then filled and evolved in the Mint/Evolution consensus system.
+ *  The null address is the only address that cannot own any slot; as usual,
+ *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721BridgelessMinting is ERC721 {
-    /**
-     * @notice Event emitted on contract deployment
-     * @param newContractAddress the address of the newly deployed contract
-     * @param baseURI the baseURI string provided on the deploy transaction
-     */
-    event NewERC721BridgelessMinting(
-        address newContractAddress,
-        string baseURI
-    );
+contract ERC721BridgelessMinting is IERC721BridgelessMinting, ERC721 {
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -52,29 +43,36 @@ contract ERC721BridgelessMinting is ERC721 {
     }
 
     /**
-     * @notice Returns the amount of tokens owned by an address
-     * @dev This function overrides the one from the base ERC721 contract to
-     *  ensure that the maxBalance is always returned, since all slots are
-     *  allocated on deploy, and tradable.
+     * @notice Returns the amount of slots initially owned by an address
+     * @dev In the bridgless minting pattern, the correct balance of an owned
+     *  is returned by the separate consensus system, for example, via usage of 
+     *  a Universal Node. However, since this method is mandatory in the ERC721 standard,
+     *  the only requirement is that the concrete implementation must simply not fail.
+     *  The returned value can be an arbitrary constant which should not be used directly
+     *  by any other application.
      * @param owner the address of the owner for which the balance is queried
-     * @return the balance of the owner provided in the query
+     * @return an arbitrary number that should not be used directly. 
      */
     function balanceOf(address owner) public pure override returns (uint256) {
         return 2 ** 96;
     }
 
-    /**
-     * @notice Returns the initial owner address which is encoded in the tokenId
-     * @dev This function returns the same value regardless of whether the
-     * token has been transferred once or more times.
-     * @dev Use ownerOf() to query current owner of an token, as opposed to the
-     *  init owner.
-     * @dev The init owner is encoded as the right-most 160 bit of tokenId
-     * @param tokenId the id of the token for which the initial owner is queried
-     * @return the initial owner of the token
-     */
+    /// @inheritdoc IERC721BridgelessMinting
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
+    }
+
+    /**
+     * @notice Returns true if the contract implements an interface
+     * @dev Extends the interfaces specified by the standard ERC721
+     *  to additionally respond true when queried about the Id of the
+     *  bridgeless minting interface, which is 0x15132960
+     *  Adheres to the ERC165 standard.
+     * @param interfaceId the id of the interface 
+     * @return true if this contract implements the interface defined by interfaceId
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC721BridgelessMinting).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
