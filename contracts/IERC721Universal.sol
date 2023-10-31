@@ -2,17 +2,17 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title Interface to contract for bridgeless minting of ERC721 tokens
+ * @title Interface to contract for Universal Minting and Evolution of ERC721 tokens
  * @dev The ERC-165 identifier for this interface is 0x57854508
  * @author Freeverse.io, www.freeverse.io
  */
-interface IERC721BridgelessMinting {
+interface IERC721Universal {
     /**
      * @notice Event emitted on contract deployment
      * @param newContractAddress the address of the newly deployed contract
      * @param baseURI the baseURI string provided on the deploy transaction
      */
-    event NewERC721BridgelessMinting(
+    event NewERC721Universal(
         address newContractAddress,
         string baseURI
     );

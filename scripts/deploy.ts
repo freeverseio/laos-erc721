@@ -9,7 +9,7 @@ async function main() {
   console.log("Deploying contracts with the account:", accounts[0].address);
 
   const ContractFactory = await ethers.getContractFactory(
-    "ERC721BridgelessMinting",
+    "ERC721Universal",
   );
 
   const instance = await ContractFactory.deploy(

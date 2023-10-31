@@ -4,11 +4,11 @@ import { ethers } from "hardhat";
 
 import { RevertType } from "../utils/enums.ts";
 
-import { ERC721BridgelessMinting } from "../typechain-types/contracts/ERC721BridgelessMinting.js";
+import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js";
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
-describe("ERC721BridgelessMinting", function () {
+describe("ERC721Universal", function () {
   const maxBalance = 2n ** 96n;
   const defaultURI = "evochain1/collectionId/";
 
@@ -16,7 +16,7 @@ describe("ERC721BridgelessMinting", function () {
   let addr2: HardhatEthersSigner;
   let addr3: HardhatEthersSigner;
 
-  let erc721: ERC721BridgelessMinting;
+  let erc721: ERC721Universal;
   let erc721Receiver: ERC721ReceiverMock;
 
   const RECEIVER_MAGIC_VALUE = "0x150b7a02";
@@ -25,10 +25,10 @@ describe("ERC721BridgelessMinting", function () {
   beforeEach(async function () {
     [addr1, addr2, addr3] = await ethers.getSigners();
 
-    const ERC721BridgelessMintingFactory = await ethers.getContractFactory(
-      "ERC721BridgelessMinting",
+    const ERC721UniversalFactory = await ethers.getContractFactory(
+      "ERC721Universal",
     );
-    erc721 = await ERC721BridgelessMintingFactory.deploy(
+    erc721 = await ERC721UniversalFactory.deploy(
       "laos-kitties",
       "LAK",
       defaultURI,
@@ -65,7 +65,7 @@ describe("ERC721BridgelessMinting", function () {
     expect(await interfaceId.supportsERC165(await erc721.getAddress())).to.equal(true);
   });
 
-  it("Should support bridgeless minting ERC721 interface", async function () {
+  it("Should support ERC721Universal interface", async function () {
     const InterfaceIdFactory = await ethers.getContractFactory(
       "InterfaceId",
     );
@@ -73,17 +73,17 @@ describe("ERC721BridgelessMinting", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721BridgelessId = "0x57854508";
-    expect(await interfaceId.getERC721BridgelessMintingId()).to.equal(specified721BridgelessId);
-    expect(await erc721.supportsInterface(specified721BridgelessId)).to.equal(true);
-    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721BridgelessId)).to.equal(true);
+    const specified721UniversalId = "0x57854508";
+    expect(await interfaceId.getERC721UniversalId()).to.equal(specified721UniversalId);
+    expect(await erc721.supportsInterface(specified721UniversalId)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721UniversalId)).to.equal(true);
   });
 
   it("Should emit expected event on deploy", async function () {
     const deployedTx = erc721.deploymentTransaction();
     const deployedAddress = await erc721.getAddress();
     await expect(deployedTx)
-      .to.emit(erc721, "NewERC721BridgelessMinting")
+      .to.emit(erc721, "NewERC721Universal")
       .withArgs(deployedAddress, defaultURI);
   });
 
