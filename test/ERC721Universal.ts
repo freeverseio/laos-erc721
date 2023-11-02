@@ -1,6 +1,7 @@
 // Import necessary Hardhat and ethers.js components
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { keccak256, toUtf8Bytes } from "ethers";
 
 import { RevertType } from "../utils/enums.ts";
 
@@ -85,6 +86,15 @@ describe("ERC721Universal", function () {
     await expect(deployedTx)
       .to.emit(erc721, "NewERC721Universal")
       .withArgs(deployedAddress, defaultURI);
+    // assert that the signature of the event (topic0) matches the expected value
+    // first by computing it from the hash of the event type:
+    const expectedTopic0 = "0x74b81bc88402765a52dad72d3d893684f472a679558f3641500e0ee14924a10a";
+    const computedTopic0 = keccak256(toUtf8Bytes('NewERC721Universal(address,string)'));
+    expect(computedTopic0).to.equal(expectedTopic0);
+    // second by retrieving it from the TX directly
+    const receipt = await deployedTx?.wait();
+    const log = receipt?.logs[0];
+    expect(log?.topics[0]).to.equal(expectedTopic0);
   });
 
   it("Should have the correct name and symbol", async function () {
