@@ -66,7 +66,7 @@ contract ERC721Universal is IERC721Universal, ERC721 {
      * @notice Returns true if the contract implements an interface
      * @dev Extends the interfaces specified by the standard ERC721
      *  to additionally respond true when queried about the Id of the
-     *  Universal Minting interface, which is 0x15132960
+     *  Universal Minting interface
      *  Adheres to the ERC165 standard.
      * @param interfaceId the id of the interface 
      * @return true if this contract implements the interface defined by interfaceId
