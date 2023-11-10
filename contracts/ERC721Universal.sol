@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IERC721Universal.sol";
+import "./IERC721Broadcast.sol";
 
 /**
  * @title Contract for Universal Minting and Evolution of ERC721 tokens
@@ -13,7 +14,7 @@ import "./IERC721Universal.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721Universal is IERC721Universal, ERC721 {
+contract ERC721Universal is IERC721Universal, IERC721Broadcast, ERC721 {
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -40,6 +41,15 @@ contract ERC721Universal is IERC721Universal, ERC721 {
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         _update(address(0), tokenId, _msgSender());
         isBurnedToken[tokenId] = true;
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcast(uint256 tokenId) external {
+        require(
+            !wasEverTransferred(tokenId),
+            "ERC721Universal::broadcast: cannot broadcast tokens already transferred at last once"
+        );
+        emit Transfer(address(0), initOwner(tokenId), tokenId);
     }
 
     /**
@@ -101,5 +111,9 @@ contract ERC721Universal is IERC721Universal, ERC721 {
         address _storageOwner = super._ownerOf(tokenId);
         return
             (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
+    }
+
+    function wasEverTransferred(uint256 tokenId) public view returns(bool) {
+        return (super._ownerOf(tokenId) != address(0)) || isBurnedToken[tokenId];
     }
 }
