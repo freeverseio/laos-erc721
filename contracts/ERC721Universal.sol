@@ -45,10 +45,7 @@ contract ERC721Universal is IERC721Universal, IERC721Broadcast, ERC721 {
 
     /// @inheritdoc IERC721Broadcast
     function broadcast(uint256 tokenId) external {
-        require(
-            !wasEverTransferred(tokenId),
-            "ERC721Universal::broadcast: cannot broadcast tokens already transferred at last once"
-        );
+        if (wasEverTransferred(tokenId)) revert ERC721UniversalAlreadyTransferred(tokenId);
         emit Transfer(address(0), initOwner(tokenId), tokenId);
     }
 

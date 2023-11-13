@@ -7,6 +7,12 @@ pragma solidity ^0.8.20;
  */
 interface IERC721Broadcast {
     /**
+     * @dev Indicates an error related the fact that a token was already transferred at least once
+     * @param tokenId The id of the token
+     */
+    error ERC721UniversalAlreadyTransferred(uint256 tokenId);
+    
+    /**
      * @notice For tokens that have never been transferred, it just emits an
      *  ERC721 Transfer event from the null address to the initial owner,
      *  to inform DApps that listen for mints.
@@ -25,6 +31,7 @@ interface IERC721Broadcast {
      * @dev Since burning involves transferring to the null address,
      *  the method must return true if the token has been burned.
      * @param tokenId the id of the token to be broadcasted
+     * @return true if the token was ever transferred
      */
     function wasEverTransferred(uint256 tokenId) external view returns(bool);
 
