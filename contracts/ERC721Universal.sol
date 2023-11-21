@@ -20,7 +20,7 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
     mapping(uint256 tokenId => bool) public isBurnedToken;
 
     // the string prepended to tokenId to return tokenURI
-    string public baseURI;
+    string private __baseURI;
 
     constructor(
         address owner_,
@@ -28,7 +28,7 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
         string memory symbol_,
         string memory baseURI_
     ) ERC721(name_, symbol_) Ownable(owner_) {
-        baseURI = baseURI_;
+        __baseURI = baseURI_;
         emit NewERC721Universal(address(this), owner_, baseURI_);
     }
 
@@ -79,12 +79,20 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
 
     /**
      * @notice Returns the baseURI used to build the tokenURI
+     * @return the baseURI used to build the tokenURI
+     */
+    function baseURI() external view returns (string memory) {
+        return __baseURI;
+    }
+
+    /**
+     * @notice Returns the baseURI used to build the tokenURI
      * @dev This function overrides the one in the base ERC721 contract, to
      *  return the correct baseURI.
      * @return the baseURI used to build the tokenURI
      */
     function _baseURI() internal view override returns (string memory) {
-        return baseURI;
+        return __baseURI;
     }
 
     /**
