@@ -503,4 +503,17 @@ describe("ERC721Universal", function () {
         ),
     ).to.be.revertedWith("ERC721ReceiverMock: reverting");
   });
+
+  it("BaseURI: onlyOwner can update it", async function () {
+    await expect(erc721.connect(addr2).updateBaseURI("new/mate"))
+      .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
+      .withArgs(addr2.address);
+  });
+
+  it("BaseURI can be updated by owner", async function () {
+    await erc721.connect(addr1).updateBaseURI("new/mate");
+    expect(await erc721.baseURI()).to.equal("new/mate");
+    await erc721.connect(addr1).updateBaseURI("old/mate");
+    expect(await erc721.baseURI()).to.equal("old/mate");
+  });
 });

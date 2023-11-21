@@ -45,6 +45,14 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
     }
 
     /**
+     * @notice Updates the URI...
+     * @param newBaseURI the new baseURI
+     */
+    function updateBaseURI(string calldata newBaseURI) external onlyOwner() {
+        __baseURI = newBaseURI;
+    }
+
+    /**
      * @notice Returns the amount of slots initially owned by an address
      * @dev In the bridgless minting pattern, the correct balance of an owned
      *  is returned by the separate consensus system, for example, via usage of 
