@@ -80,6 +80,10 @@ describe("ERC721Universal", function () {
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721UniversalId)).to.equal(true);
   });
 
+  it("Can query BaseURI", async function () {
+    expect(await erc721.baseURI()).to.equal(defaultURI);
+  });
+
   it("Should emit OwnershipTransferred event on deploy", async function () {
     const deployedTx = erc721.deploymentTransaction();
     const nullAddress = ethers.toBeHex(0, 20);
