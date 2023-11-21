@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC721Universal.sol";
 
 /**
@@ -13,7 +14,7 @@ import "./IERC721Universal.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721Universal is IERC721Universal, ERC721 {
+contract ERC721Universal is IERC721Universal, ERC721, Ownable {
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -22,12 +23,13 @@ contract ERC721Universal is IERC721Universal, ERC721 {
     string public baseURI;
 
     constructor(
-        string memory name,
-        string memory symbol,
+        address owner_,
+        string memory name_,
+        string memory symbol_,
         string memory baseURI_
-    ) ERC721(name, symbol) {
+    ) ERC721(name_, symbol_) Ownable(owner_) {
         baseURI = baseURI_;
-        emit NewERC721Universal(address(this), baseURI_);
+        emit NewERC721Universal(address(this), owner_, baseURI_);
     }
 
     /**
@@ -50,10 +52,10 @@ contract ERC721Universal is IERC721Universal, ERC721 {
      *  the only requirement is that the concrete implementation must simply not fail.
      *  The returned value can be an arbitrary constant which should not be used directly
      *  by any other application.
-     * @param owner the address of the owner for which the balance is queried
+     * @param _owner the address of the owner for which the balance is queried
      * @return an arbitrary number that should not be used directly. 
      */
-    function balanceOf(address owner) public pure override returns (uint256) {
+    function balanceOf(address _owner) public pure override returns (uint256) {
         return 2 ** 96;
     }
 

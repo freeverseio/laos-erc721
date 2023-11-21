@@ -14,6 +14,7 @@ interface IERC721Universal {
      */
     event NewERC721Universal(
         address newContractAddress,
+        address owner,
         string baseURI
     );
 

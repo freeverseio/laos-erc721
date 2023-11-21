@@ -29,6 +29,7 @@ describe("ERC721Universal", function () {
       "ERC721Universal",
     );
     erc721 = await ERC721UniversalFactory.deploy(
+      addr1.address,
       "laos-kitties",
       "LAK",
       defaultURI,
@@ -84,7 +85,7 @@ describe("ERC721Universal", function () {
     const deployedAddress = await erc721.getAddress();
     await expect(deployedTx)
       .to.emit(erc721, "NewERC721Universal")
-      .withArgs(deployedAddress, defaultURI);
+      .withArgs(deployedAddress, addr1.address, defaultURI);
   });
 
   it("Should have the correct name and symbol", async function () {
