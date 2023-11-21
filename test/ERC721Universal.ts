@@ -516,4 +516,10 @@ describe("ERC721Universal", function () {
     await erc721.connect(addr1).updateBaseURI("old/mate");
     expect(await erc721.baseURI()).to.equal("old/mate");
   });
+
+  it("BaseURI emits expected event", async function () {
+    await expect(await erc721.connect(addr1).updateBaseURI("new/mate"))
+      .to.emit(erc721, "UpdatedBaseURI")
+      .withArgs("new/mate");
+  });
 });

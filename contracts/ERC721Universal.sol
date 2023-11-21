@@ -16,6 +16,8 @@ import "./IERC721Universal.sol";
  */
 contract ERC721Universal is IERC721Universal, ERC721, Ownable {
 
+    event UpdatedBaseURI(string newBaseURI);
+
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
 
@@ -50,6 +52,7 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
      */
     function updateBaseURI(string calldata newBaseURI) external onlyOwner() {
         __baseURI = newBaseURI;
+        emit UpdatedBaseURI(newBaseURI);
     }
 
     /**
