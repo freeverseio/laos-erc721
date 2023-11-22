@@ -24,7 +24,7 @@ contract ERC721Universal is
     /// @inheritdoc IERC721Universal
     uint32 public constant ERC721UniversalVersion = 1;
 
-    // if true, the baseURI cannot be changed ever again
+    /// @inheritdoc IERC721UpdatableBaseURI
     bool public isBaseURILocked;
 
     // the map that returns true for tokens that have been burned
@@ -43,18 +43,6 @@ contract ERC721Universal is
         emit NewERC721Universal(address(this), baseURI_);
     }
 
-    /**
-     * @notice Burns `tokenId`
-     * @dev The caller must own `tokenId` or be an approved operator.
-     * @param tokenId the id of the token to be burned
-     */
-    function burn(uint256 tokenId) public virtual {
-        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
-        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-        _update(address(0), tokenId, _msgSender());
-        isBurnedToken[tokenId] = true;
-    }
-
     /// @inheritdoc IERC721UpdatableBaseURI
     function updateBaseURI(string calldata newBaseURI) external onlyOwner {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
@@ -67,6 +55,72 @@ contract ERC721Universal is
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
         emit LockedBaseURI(__baseURI);
+    }
+
+    /**
+     * @notice Burns `tokenId`
+     * @dev The caller must own `tokenId` or be an approved operator.
+     * @param tokenId the id of the token to be burned
+     */
+    function burn(uint256 tokenId) public virtual {
+        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+        _update(address(0), tokenId, _msgSender());
+        isBurnedToken[tokenId] = true;
+    }
+
+    /**
+     * @notice Returns true if the contract implements an interface
+     * @dev Extends the interfaces specified by the standard ERC721
+     *  to additionally respond true when queried about the Id of the
+     *  Universal Minting interface
+     *  Adheres to the ERC165 standard.
+     * @param interfaceId the id of the interface
+     * @return true if this contract implements the interface defined by interfaceId
+     */
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
+            interfaceId == type(IERC721Universal).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice Returns the baseURI used to build the tokenURI
+     * @return the baseURI used to build the tokenURI
+     */
+    function baseURI() external view returns (string memory) {
+        return _baseURI();
+    }
+
+    /**
+     * @notice Returns the baseURI used to build the tokenURI
+     * @dev This function overrides the one in the base ERC721 contract, to
+     *  return the correct baseURI.
+     * @return the baseURI used to build the tokenURI
+     */
+    function _baseURI() internal view override returns (string memory) {
+        return __baseURI;
+    }
+
+    /**
+     * @notice Returns the current owner of a token
+     * @dev This function overrides the one in the base ERC721 contract. On
+     *  deploy, all tokens have an assigned owner, encoded in their tokenId, and
+     *  determined via usage of initOwner(tokenId). Upon transfer, the new owner
+     *  is stored in, and retrieved from, the contract storage.
+     * @param tokenId the id of the token for which the owner is queried
+     * @return the current owner of the token
+     */
+    function _ownerOf(
+        uint256 tokenId
+    ) internal view override returns (address) {
+        if (isBurnedToken[tokenId]) return address(0);
+        address _storageOwner = super._ownerOf(tokenId);
+        return
+            (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
 
     /**
@@ -96,59 +150,5 @@ contract ERC721Universal is
      */
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
-    }
-
-    /**
-     * @notice Returns true if the contract implements an interface
-     * @dev Extends the interfaces specified by the standard ERC721
-     *  to additionally respond true when queried about the Id of the
-     *  Universal Minting interface
-     *  Adheres to the ERC165 standard.
-     * @param interfaceId the id of the interface
-     * @return true if this contract implements the interface defined by interfaceId
-     */
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override returns (bool) {
-        return
-            interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
-            interfaceId == type(IERC721Universal).interfaceId ||
-            super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @notice Returns the baseURI used to build the tokenURI
-     * @return the baseURI used to build the tokenURI
-     */
-    function baseURI() external view returns (string memory) {
-        return __baseURI;
-    }
-
-    /**
-     * @notice Returns the baseURI used to build the tokenURI
-     * @dev This function overrides the one in the base ERC721 contract, to
-     *  return the correct baseURI.
-     * @return the baseURI used to build the tokenURI
-     */
-    function _baseURI() internal view override returns (string memory) {
-        return __baseURI;
-    }
-
-    /**
-     * @notice Returns the current owner of a token
-     * @dev This function overrides the one in the base ERC721 contract. On
-     *  deploy, all tokens have an assigned owner, encoded in their tokenId, and
-     *  determined via usage of initOwner(tokenId). Upon transfer, the new owner
-     *  is stored in, and retrieved from, the contract storage.
-     * @param tokenId the id of the token for which the owner is queried
-     * @return the current owner of the token
-     */
-    function _ownerOf(
-        uint256 tokenId
-    ) internal view override returns (address) {
-        if (isBurnedToken[tokenId]) return address(0);
-        address _storageOwner = super._ownerOf(tokenId);
-        return
-            (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
 }
