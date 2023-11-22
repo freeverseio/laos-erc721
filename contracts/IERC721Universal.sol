@@ -12,11 +12,7 @@ interface IERC721Universal {
      * @param newContractAddress the address of the newly deployed contract
      * @param baseURI the baseURI string provided on the deploy transaction
      */
-
-    event NewERC721Universal(
-        address newContractAddress,
-        string baseURI
-    );
+    event NewERC721Universal(address newContractAddress, string baseURI);
 
     /**
      * @notice Returns the version of the ERC721Universal spec that the contract implements

@@ -15,8 +15,12 @@ import "./IERC721UpdatableBaseURI.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, Ownable {
-
+contract ERC721Universal is
+    IERC721Universal,
+    IERC721UpdatableBaseURI,
+    ERC721,
+    Ownable
+{
     /// @inheritdoc IERC721Universal
     uint32 public constant ERC721UniversalVersion = 1;
 
@@ -52,14 +56,14 @@ contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, O
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
-    function updateBaseURI(string calldata newBaseURI) external onlyOwner() {
+    function updateBaseURI(string calldata newBaseURI) external onlyOwner {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         __baseURI = newBaseURI;
         emit UpdatedBaseURI(newBaseURI);
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
-    function lockBaseURI() external onlyOwner() {
+    function lockBaseURI() external onlyOwner {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
         emit LockedBaseURI(__baseURI);
@@ -68,13 +72,13 @@ contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, O
     /**
      * @notice Returns the amount of slots initially owned by an address
      * @dev In the bridgless minting pattern, the correct balance of an owned
-     *  is returned by the separate consensus system, for example, via usage of 
+     *  is returned by the separate consensus system, for example, via usage of
      *  a Universal Node. However, since this method is mandatory in the ERC721 standard,
      *  the only requirement is that the concrete implementation must simply not fail.
      *  The returned value can be an arbitrary constant which should not be used directly
      *  by any other application.
      * @param _owner the address of the owner for which the balance is queried
-     * @return an arbitrary number that should not be used directly. 
+     * @return an arbitrary number that should not be used directly.
      */
     function balanceOf(address _owner) public pure override returns (uint256) {
         return 2 ** 96;
@@ -100,11 +104,14 @@ contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, O
      *  to additionally respond true when queried about the Id of the
      *  Universal Minting interface
      *  Adheres to the ERC165 standard.
-     * @param interfaceId the id of the interface 
+     * @param interfaceId the id of the interface
      * @return true if this contract implements the interface defined by interfaceId
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
             interfaceId == type(IERC721Universal).interfaceId ||
             super.supportsInterface(interfaceId);
     }
