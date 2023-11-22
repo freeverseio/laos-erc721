@@ -16,13 +16,13 @@ import "./IERC721Universal.sol";
  */
 contract ERC721Universal is IERC721Universal, ERC721, Ownable {
 
-    error BaseURIAlreadyConsolidated();
+    error BaseURIAlreadyLocked();
 
     event UpdatedBaseURI(string newBaseURI);
-    event ConsolidatedBaseURI(string baseURI);
+    event LockedBaseURI(string baseURI);
 
     // if true, the baseURI cannot be changed ever again
-    bool public isBaseURIConsolidated;
+    bool public isBaseURILocked;
 
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurnedToken;
@@ -57,7 +57,7 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
      * @param newBaseURI the new baseURI
      */
     function updateBaseURI(string calldata newBaseURI) external onlyOwner() {
-        if (isBaseURIConsolidated) revert BaseURIAlreadyConsolidated();
+        if (isBaseURILocked) revert BaseURIAlreadyLocked();
         __baseURI = newBaseURI;
         emit UpdatedBaseURI(newBaseURI);
     }
@@ -65,10 +65,10 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
     /**
      * @notice Consolidates a baseURI
      */
-    function consolidateBaseURI() external onlyOwner() {
-        if (isBaseURIConsolidated) revert BaseURIAlreadyConsolidated();
-        isBaseURIConsolidated = true;
-        emit ConsolidatedBaseURI(__baseURI);
+    function lockBaseURI() external onlyOwner() {
+        if (isBaseURILocked) revert BaseURIAlreadyLocked();
+        isBaseURILocked = true;
+        emit LockedBaseURI(__baseURI);
     }
 
     /**

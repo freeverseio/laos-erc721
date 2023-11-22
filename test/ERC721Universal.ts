@@ -523,33 +523,33 @@ describe("ERC721Universal", function () {
       .withArgs("new/mate");
   });
 
-  it("BaseURI is not consolidated on deploy", async function () {
-    expect(await erc721.isBaseURIConsolidated()).to.equal(false);
+  it("BaseURI is not locked on deploy", async function () {
+    expect(await erc721.isBaseURILocked()).to.equal(false);
   });
 
-  it("BaseURI: onlyOwner can consolidate it", async function () {
-    await expect(erc721.connect(addr2).consolidateBaseURI())
+  it("BaseURI: onlyOwner can lock", async function () {
+    await expect(erc721.connect(addr2).lockBaseURI())
       .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
       .withArgs(addr2.address);
   });
 
-  it("BaseURI: consolidation prevents further changes of baseURI", async function () {
-    await expect(erc721.connect(addr1).consolidateBaseURI())
-      .to.emit(erc721, "ConsolidatedBaseURI")
+  it("BaseURI: locking prevents further changes of baseURI", async function () {
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.emit(erc721, "LockedBaseURI")
       .withArgs(defaultURI);
 
     await expect(erc721.connect(addr1).updateBaseURI("new/mate"))
-      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyConsolidated")
+      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
       .withArgs();      
   });
 
-  it("BaseURI: consolidation prevents further consolidations", async function () {
-    await expect(erc721.connect(addr1).consolidateBaseURI())
-      .to.emit(erc721, "ConsolidatedBaseURI")
+  it("BaseURI: locking cannot be done twice", async function () {
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.emit(erc721, "LockedBaseURI")
       .withArgs(defaultURI);
 
-    await expect(erc721.connect(addr1).consolidateBaseURI())
-      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyConsolidated")
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
       .withArgs();      
   });
 
