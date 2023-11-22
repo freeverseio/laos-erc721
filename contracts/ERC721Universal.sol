@@ -60,7 +60,7 @@ contract ERC721Universal is
     }
 
     /// @inheritdoc IERC721Broadcast
-    function broadcast(uint256 tokenId) external {
+    function broadcastMint(uint256 tokenId) external {
         if (wasEverTransferred(tokenId))
             revert ERC721UniversalAlreadyTransferred(tokenId);
         emit Transfer(address(0), initOwner(tokenId), tokenId);

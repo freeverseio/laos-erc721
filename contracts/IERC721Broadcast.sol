@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title ERC-721 Non-Fungible Token Standard, optional broadcast extension
+ * @title ERC-721 Non-Fungible Token Standard, optional broadcastMint extension
  * @author Freeverse.io, www.freeverse.io
  */
 interface IERC721Broadcast {
@@ -24,7 +24,7 @@ interface IERC721Broadcast {
      *  revert if the token has been burned.
      * @param tokenId the id of the token to be broadcasted
      */
-    function broadcast(uint256 tokenId) external;
+    function broadcastMint(uint256 tokenId) external;
 
     /**
      * @notice Returns true if the token has already been transferred at least once

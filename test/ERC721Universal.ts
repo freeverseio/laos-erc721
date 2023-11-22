@@ -683,20 +683,20 @@ describe("ERC721Broadcast", function () {
     expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
   });
 
-  it("broadcast works on non-transferred asset, and emits expected event", async function () {
+  it("broadcastMint works on non-transferred asset, and emits expected event", async function () {
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
       32,
     );
     const nullAddress = ethers.toBeHex(0, 20);
-    // note that the broadcast is sent by an address that
-    await expect(erc721.connect(addr2).broadcast(tokenId))
+    // note that the broadcastMint is sent by an address that
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(nullAddress, addr1.address, tokenId);
   });
 
-  it("broadcast reverts on transferred assets", async function () {
+  it("broadcastMint reverts on transferred assets", async function () {
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -707,12 +707,12 @@ describe("ERC721Broadcast", function () {
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcast(tokenId))
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
       .withArgs(tokenId);
   });  
 
-  it("broadcast reverts on burned assets", async function () {
+  it("broadcastMint reverts on burned assets", async function () {
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -724,7 +724,7 @@ describe("ERC721Broadcast", function () {
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcast(tokenId))
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
       .withArgs(tokenId);
   });
