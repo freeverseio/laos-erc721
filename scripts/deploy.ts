@@ -13,6 +13,7 @@ async function main() {
   );
 
   const instance = await ContractFactory.deploy(
+    accounts[0].address,
     tokenName,
     tokenSymbol,
     baseURI,
