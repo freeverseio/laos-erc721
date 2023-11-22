@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC721Universal.sol";
+import "./IERC721UpdatableBaseURI.sol";
 
 /**
  * @title Contract for Universal Minting and Evolution of ERC721 tokens
@@ -14,12 +15,7 @@ import "./IERC721Universal.sol";
  *  The null address is the only address that cannot own any slot; as usual,
  *  it is used as the target address of the transfer executed within the burn method.
  */
-contract ERC721Universal is IERC721Universal, ERC721, Ownable {
-
-    error BaseURIAlreadyLocked();
-
-    event UpdatedBaseURI(string newBaseURI);
-    event LockedBaseURI(string baseURI);
+contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, Ownable {
 
     // if true, the baseURI cannot be changed ever again
     bool public isBaseURILocked;
@@ -52,19 +48,14 @@ contract ERC721Universal is IERC721Universal, ERC721, Ownable {
         isBurnedToken[tokenId] = true;
     }
 
-    /**
-     * @notice Updates the URI...
-     * @param newBaseURI the new baseURI
-     */
+    /// @inheritdoc IERC721UpdatableBaseURI
     function updateBaseURI(string calldata newBaseURI) external onlyOwner() {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         __baseURI = newBaseURI;
         emit UpdatedBaseURI(newBaseURI);
     }
 
-    /**
-     * @notice Consolidates a baseURI
-     */
+    /// @inheritdoc IERC721UpdatableBaseURI
     function lockBaseURI() external onlyOwner() {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
