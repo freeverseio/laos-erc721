@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @title Interface that extends ERC721 to manage updates of BaseURI
- * @dev The ERC-165 identifier for this interface is TODO
+ * @dev The ERC-165 identifier for this interface is 0xb8382a4b
  * @author Freeverse.io, www.freeverse.io
  */
 interface IERC721UpdatableBaseURI {
@@ -24,7 +24,6 @@ interface IERC721UpdatableBaseURI {
      */
     event LockedBaseURI(string baseURI);
 
-
     /**
      * @notice Returns true if the baseURI is permanently locked
      * @return true if the baseURI is permanently locked
@@ -43,5 +42,4 @@ interface IERC721UpdatableBaseURI {
      * @dev Only the owner of the ERC721 must be authorized to call this method
      */
     function lockBaseURI() external;
-
 }

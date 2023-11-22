@@ -20,6 +20,10 @@ contract InterfaceId {
         return type(IERC721Universal).interfaceId;
     }
 
+    function getERC721UpdatableBaseURIId() public pure returns(bytes4) {
+        return type(IERC721UpdatableBaseURI).interfaceId;
+    }
+
     function supportsERC165(address _contractAddress) external view returns (bool) {
         return ERC165Checker.supportsERC165(_contractAddress);
     }

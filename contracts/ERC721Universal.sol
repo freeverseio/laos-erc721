@@ -92,7 +92,9 @@ contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, O
      * @return true if this contract implements the interface defined by interfaceId
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC721Universal).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
+            interfaceId == type(IERC721Universal).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**

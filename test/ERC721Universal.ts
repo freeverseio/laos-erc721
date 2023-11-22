@@ -530,6 +530,20 @@ describe("ERC721UpdatableBaseURI", function () {
     await erc721.waitForDeployment();
   });
 
+  it("Should support the standard ERC721UpdatableBaseURI interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
+    const specified721Id = "0xb8382a4b";
+    expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specified721Id);
+    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+  });
+
   it("BaseURI: onlyOwner can update it", async function () {
     await expect(erc721.connect(addr2).updateBaseURI("new/mate"))
       .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
