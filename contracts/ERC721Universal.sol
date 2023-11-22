@@ -31,7 +31,7 @@ contract ERC721Universal is
     mapping(uint256 tokenId => bool) public isBurnedToken;
 
     // the string prepended to tokenId to return tokenURI
-    string private __baseURI;
+    string private _baseURIStorage;
 
     constructor(
         address owner_,
@@ -39,14 +39,14 @@ contract ERC721Universal is
         string memory symbol_,
         string memory baseURI_
     ) ERC721(name_, symbol_) Ownable(owner_) {
-        __baseURI = baseURI_;
+        _baseURIStorage = baseURI_;
         emit NewERC721Universal(address(this), baseURI_);
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
     function updateBaseURI(string calldata newBaseURI) external onlyOwner {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
-        __baseURI = newBaseURI;
+        _baseURIStorage = newBaseURI;
         emit UpdatedBaseURI(newBaseURI);
     }
 
@@ -54,7 +54,7 @@ contract ERC721Universal is
     function lockBaseURI() external onlyOwner {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
-        emit LockedBaseURI(__baseURI);
+        emit LockedBaseURI(_baseURIStorage);
     }
 
     /**
@@ -102,7 +102,7 @@ contract ERC721Universal is
      * @return the baseURI used to build the tokenURI
      */
     function _baseURI() internal view override returns (string memory) {
-        return __baseURI;
+        return _baseURIStorage;
     }
 
     /**
