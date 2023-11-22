@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "../ERC721Universal.sol";
+import "../IERC721Broadcast.sol";
 
 /**
  * @title Test contract for the purpose of verifying the interfaces
@@ -22,6 +23,10 @@ contract InterfaceId {
 
     function getERC721UpdatableBaseURIId() public pure returns(bytes4) {
         return type(IERC721UpdatableBaseURI).interfaceId;
+    }
+
+    function getERC721BroadcastId() public pure returns(bytes4) {
+        return type(IERC721Broadcast).interfaceId;
     }
 
     function supportsERC165(address _contractAddress) external view returns (bool) {

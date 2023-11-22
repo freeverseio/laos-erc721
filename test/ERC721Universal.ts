@@ -627,6 +627,20 @@ describe("ERC721Broadcast", function () {
     await erc721.waitForDeployment();
   });
 
+  it("Should support the standard ERC721Broadcast interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
+    const specified721Id = "0x9430f0b8";
+    expect(await interfaceId.getERC721BroadcastId()).to.equal(specified721Id);
+    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+  });
+
   it("wasEverTransferred returns false on non-transferred assets", async function () {
     const slot = "111";
     const tokenId = ethers.toBeHex(

@@ -101,6 +101,7 @@ contract ERC721Universal is
         return
             interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
             interfaceId == type(IERC721Universal).interfaceId ||
+            interfaceId == type(IERC721Broadcast).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
