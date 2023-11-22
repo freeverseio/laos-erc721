@@ -548,36 +548,37 @@ describe("ERC721UpdatableBaseURI", function () {
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
   });
 
-  it("BaseURI: onlyOwner can update it", async function () {
+  it("baseURI cannot be updated by address that is not owner", async function () {
     await expect(erc721.connect(addr2).updateBaseURI("new/mate"))
       .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
       .withArgs(addr2.address);
   });
 
-  it("BaseURI can be updated by owner", async function () {
+  it("updates to baseURI work", async function () {
     await erc721.connect(addr1).updateBaseURI("new/mate");
     expect(await erc721.baseURI()).to.equal("new/mate");
     await erc721.connect(addr1).updateBaseURI("old/mate");
     expect(await erc721.baseURI()).to.equal("old/mate");
+    expect(await erc721.tokenURI(1)).to.equal("old/mate1");
   });
 
-  it("BaseURI change emits expected event", async function () {
+  it("change in baseURI emits expected event", async function () {
     await expect(await erc721.connect(addr1).updateBaseURI("new/mate"))
       .to.emit(erc721, "UpdatedBaseURI")
       .withArgs("new/mate");
   });
 
-  it("BaseURI is not locked on deploy", async function () {
+  it("is not locked on deploy", async function () {
     expect(await erc721.isBaseURILocked()).to.equal(false);
   });
 
-  it("BaseURI: onlyOwner can lock", async function () {
+  it("onlyOwner can lock baseURI", async function () {
     await expect(erc721.connect(addr2).lockBaseURI())
       .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
       .withArgs(addr2.address);
   });
 
-  it("BaseURI: locking prevents further changes of baseURI", async function () {
+  it("locking baseURI prevents further changes of baseURI", async function () {
     await expect(erc721.connect(addr1).lockBaseURI())
       .to.emit(erc721, "LockedBaseURI")
       .withArgs(defaultURI);
@@ -587,7 +588,7 @@ describe("ERC721UpdatableBaseURI", function () {
       .withArgs();      
   });
 
-  it("BaseURI: locking cannot be done twice", async function () {
+  it("locking baseURI cannot be done twice", async function () {
     await expect(erc721.connect(addr1).lockBaseURI())
       .to.emit(erc721, "LockedBaseURI")
       .withArgs(defaultURI);
