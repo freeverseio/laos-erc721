@@ -19,11 +19,11 @@ interface IERC721Broadcast {
      *  to inform DApps that listen for mints.
      *  The method must not change the state in any other way.
      * @dev This function must revert if the token has ever been transferred,
-     *  at least once, since it that case, DApps are already aware of the current
+     *  at least once, since in that case, DApps are already aware of the current
      *  owner, and by extension, about the initial mint of the asset.
      *  Since burning involves transferring to the null address, the method must also
      *  revert if the token has been burned.
-     * @param tokenId the id of the token to be broadcasted
+     * @param tokenId the id of the token to be broadcast
      */
     function broadcastMint(uint256 tokenId) external;
 
@@ -34,11 +34,11 @@ interface IERC721Broadcast {
      *  and then checking the previous and new owners against the contract state.
      *  The method must not change the state in any other way.
      * @dev This function must revert if the token has ever been transferred,
-     *  at least once, since it that case, DApps are already aware of the current
+     *  at least once, since in that case, DApps are already aware of the current
      *  owner, and by extension, about the initial mint of the asset.
      *  Since burning involves transferring to the null address, the method must also
      *  revert if the token has been burned.
-     * @param tokenId the id of the token to be broadcasted
+     * @param tokenId the id of the token to be broadcast
      */
     function broadcastSelfTransfer(uint256 tokenId) external;
 
@@ -46,7 +46,7 @@ interface IERC721Broadcast {
      * @notice Returns true if the token has already been transferred at least once
      * @dev Since burning involves transferring to the null address,
      *  the method must return true if the token has been burned.
-     * @param tokenId the id of the token to be broadcasted
+     * @param tokenId the id of the token to be broadcast
      * @return true if the token was ever transferred
      */
     function wasEverTransferred(uint256 tokenId) external view returns (bool);
