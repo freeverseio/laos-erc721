@@ -690,10 +690,22 @@ describe("ERC721Broadcast", function () {
       32,
     );
     const nullAddress = ethers.toBeHex(0, 20);
-    // note that the broadcastMint is sent by an address that
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(nullAddress, addr1.address, tokenId);
+  });
+
+  it("broadcastSelfTransfer work on non-transferred asset, and emits expected event", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId);
   });
 
   it("broadcastMint reverts on transferred assets", async function () {
@@ -712,6 +724,22 @@ describe("ERC721Broadcast", function () {
       .withArgs(tokenId);
   });  
 
+  it("broadcastSelfTransfer reverts on transferred assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });  
+
   it("broadcastMint reverts on burned assets", async function () {
     const slot = "111";
     const tokenId = ethers.toBeHex(
@@ -725,6 +753,23 @@ describe("ERC721Broadcast", function () {
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
     await expect(erc721.connect(addr2).broadcastMint(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });
+
+  it("broadcastSelfTransfer reverts on burned assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(
+      erc721.connect(addr1).burn(tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId);
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
       .withArgs(tokenId);
   });
