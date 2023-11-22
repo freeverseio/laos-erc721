@@ -2,7 +2,9 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title Interface that extends ERC721 to manage updates of BaseURI
+ * @title Interface for ERC721 contracts which use a baseURI string
+ *  to generate the tokenURI programmatically. It provides essential
+ *  functions for managing the baseURI string.
  * @dev The ERC-165 identifier for this interface is 0xb8382a4b
  * @author Freeverse.io, www.freeverse.io
  */
