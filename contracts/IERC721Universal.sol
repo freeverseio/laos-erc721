@@ -21,9 +21,9 @@ interface IERC721Universal {
     function ERC721UniversalVersion() external view returns (uint32);
 
     /**
-     * @notice Returns the baseURI uses to create the tokenURI for each asset
+     * @notice Returns the baseURI used to create the tokenURI for each asset
      * @dev It must end with a slash "/" so that it concatenates correctly with tokenId
-     * @return the baseURI uses to create the tokenURI for each asset
+     * @return the baseURI used to create the tokenURI for each asset
      */
     function baseURI() external view returns (string memory);
 }

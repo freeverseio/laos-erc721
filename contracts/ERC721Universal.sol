@@ -30,7 +30,7 @@ contract ERC721Universal is
     // the map that returns true for tokens that have been burned
     mapping(uint256 tokenId => bool) public isBurned;
 
-    // the string prepended to tokenId to return tokenURI
+    // this string is prepended to tokenId to form the tokenURI
     string private _baseURIStorage;
 
     constructor(
@@ -63,7 +63,7 @@ contract ERC721Universal is
      * @param tokenId the id of the token to be burned
      */
     function burn(uint256 tokenId) public virtual {
-        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+        // Setting an "auth" argument enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         _update(address(0), tokenId, _msgSender());
         isBurned[tokenId] = true;

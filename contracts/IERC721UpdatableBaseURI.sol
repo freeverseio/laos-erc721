@@ -8,7 +8,7 @@ pragma solidity ^0.8.20;
  */
 interface IERC721UpdatableBaseURI {
     /**
-     * @dev The method cannot be called is the baseURI is already locked
+     * @dev The method cannot be called if the baseURI is already locked
      */
     error BaseURIAlreadyLocked();
 
