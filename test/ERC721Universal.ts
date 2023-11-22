@@ -221,7 +221,7 @@ describe("ERC721Universal", function () {
     expect(await erc721.balanceOf(addr3.address)).to.equal(maxBalance);
   });
 
-  it("Owner of the asset should be burn asset", async function () {
+  it("Owner of the asset should be able to burn the asset", async function () {
     const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
@@ -232,9 +232,13 @@ describe("ERC721Universal", function () {
 
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
 
+    expect(await erc721.isBurned(tokenId)).to.equal(false);
+
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
+
+    expect(await erc721.isBurned(tokenId)).to.equal(true);
 
     await expect(erc721.ownerOf(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721NonexistentToken")

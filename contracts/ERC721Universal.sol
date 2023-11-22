@@ -28,7 +28,7 @@ contract ERC721Universal is
     bool public isBaseURILocked;
 
     // the map that returns true for tokens that have been burned
-    mapping(uint256 tokenId => bool) public isBurnedToken;
+    mapping(uint256 tokenId => bool) public isBurned;
 
     // the string prepended to tokenId to return tokenURI
     string private _baseURIStorage;
@@ -66,7 +66,7 @@ contract ERC721Universal is
         // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         _update(address(0), tokenId, _msgSender());
-        isBurnedToken[tokenId] = true;
+        isBurned[tokenId] = true;
     }
 
     /**
@@ -117,7 +117,7 @@ contract ERC721Universal is
     function _ownerOf(
         uint256 tokenId
     ) internal view override returns (address) {
-        if (isBurnedToken[tokenId]) return address(0);
+        if (isBurned[tokenId]) return address(0);
         address _storageOwner = super._ownerOf(tokenId);
         return
             (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
