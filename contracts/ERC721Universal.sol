@@ -62,7 +62,7 @@ contract ERC721Universal is
      * @dev The caller must own `tokenId` or be an approved operator.
      * @param tokenId the id of the token to be burned
      */
-    function burn(uint256 tokenId) public virtual {
+    function burn(uint256 tokenId) external virtual {
         // Setting an "auth" argument enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         _update(address(0), tokenId, _msgSender());
@@ -96,34 +96,6 @@ contract ERC721Universal is
     }
 
     /**
-     * @notice Returns the baseURI used to build the tokenURI
-     * @dev This function overrides the one in the base ERC721 contract, to
-     *  return the correct baseURI.
-     * @return the baseURI used to build the tokenURI
-     */
-    function _baseURI() internal view override returns (string memory) {
-        return _baseURIStorage;
-    }
-
-    /**
-     * @notice Returns the current owner of a token
-     * @dev This function overrides the one in the base ERC721 contract. On
-     *  deploy, all tokens have an assigned owner, encoded in their tokenId, and
-     *  determined via usage of initOwner(tokenId). Upon transfer, the new owner
-     *  is stored in, and retrieved from, the contract storage.
-     * @param tokenId the id of the token for which the owner is queried
-     * @return the current owner of the token
-     */
-    function _ownerOf(
-        uint256 tokenId
-    ) internal view override returns (address) {
-        if (isBurned[tokenId]) return address(0);
-        address _storageOwner = super._ownerOf(tokenId);
-        return
-            (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
-    }
-
-    /**
      * @notice Returns the amount of slots initially owned by an address
      * @dev In the bridgless minting pattern, the correct balance of an owned
      *  is returned by the separate consensus system, for example, via usage of
@@ -150,5 +122,33 @@ contract ERC721Universal is
      */
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
+    }
+
+    /**
+     * @notice Returns the baseURI used to build the tokenURI
+     * @dev This function overrides the one in the base ERC721 contract, to
+     *  return the correct baseURI.
+     * @return the baseURI used to build the tokenURI
+     */
+    function _baseURI() internal view override returns (string memory) {
+        return _baseURIStorage;
+    }
+
+    /**
+     * @notice Returns the current owner of a token
+     * @dev This function overrides the one in the base ERC721 contract. On
+     *  deploy, all tokens have an assigned owner, encoded in their tokenId, and
+     *  determined via usage of initOwner(tokenId). Upon transfer, the new owner
+     *  is stored in, and retrieved from, the contract storage.
+     * @param tokenId the id of the token for which the owner is queried
+     * @return the current owner of the token
+     */
+    function _ownerOf(
+        uint256 tokenId
+    ) internal view override returns (address) {
+        if (isBurned[tokenId]) return address(0);
+        address _storageOwner = super._ownerOf(tokenId);
+        return
+            (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
     }
 }
