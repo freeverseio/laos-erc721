@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC721Universal.sol";
 import "./IERC721UpdatableBaseURI.sol";
+import "./IERC721Broadcast.sol";
 
 /**
  * @title Contract for Universal Minting and Evolution of ERC721 tokens
@@ -18,6 +19,7 @@ import "./IERC721UpdatableBaseURI.sol";
 contract ERC721Universal is
     IERC721Universal,
     IERC721UpdatableBaseURI,
+    IERC721Broadcast,
     ERC721,
     Ownable
 {
@@ -55,6 +57,18 @@ contract ERC721Universal is
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
         emit LockedBaseURI(_baseURIStorage);
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcast(uint256 tokenId) external {
+        if (wasEverTransferred(tokenId))
+            revert ERC721UniversalAlreadyTransferred(tokenId);
+        emit Transfer(address(0), initOwner(tokenId), tokenId);
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function wasEverTransferred(uint256 tokenId) public view returns (bool) {
+        return (super._ownerOf(tokenId) != address(0)) || isBurned[tokenId];
     }
 
     /**
