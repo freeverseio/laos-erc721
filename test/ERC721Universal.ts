@@ -503,6 +503,32 @@ describe("ERC721Universal", function () {
         ),
     ).to.be.revertedWith("ERC721ReceiverMock: reverting");
   });
+});
+
+
+describe("ERC721UpdatableBaseURI", function () {
+  const defaultURI = "evochain1/collectionId/";
+
+  let addr1: HardhatEthersSigner;
+  let addr2: HardhatEthersSigner;
+
+  let erc721: ERC721Universal;
+
+  // Deploy the contract and prepare accounts
+  beforeEach(async function () {
+    [addr1, addr2] = await ethers.getSigners();
+
+    const ERC721UniversalFactory = await ethers.getContractFactory(
+      "ERC721Universal",
+    );
+    erc721 = await ERC721UniversalFactory.deploy(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    await erc721.waitForDeployment();
+  });
 
   it("BaseURI: onlyOwner can update it", async function () {
     await expect(erc721.connect(addr2).updateBaseURI("new/mate"))
@@ -552,5 +578,4 @@ describe("ERC721Universal", function () {
       .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
       .withArgs();      
   });
-
 });
