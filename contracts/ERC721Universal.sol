@@ -67,7 +67,7 @@ contract ERC721Universal is
     /// @inheritdoc IERC721Broadcast
     function broadcastSelfTransfer(uint256 tokenId) external {
         _broadcast(tokenId, initOwner(tokenId));
-    }   
+    }
 
     /// @inheritdoc IERC721Broadcast
     function wasEverTransferred(uint256 tokenId) public view returns (bool) {
@@ -177,10 +177,9 @@ contract ERC721Universal is
      * @param tokenId the id of the token to be broadcasted
      * @param from the 'from' address to be used in the Transfer event
      */
-     function _broadcast(uint256 tokenId, address from) private {
+    function _broadcast(uint256 tokenId, address from) private {
         if (wasEverTransferred(tokenId))
             revert ERC721UniversalAlreadyTransferred(tokenId);
         emit Transfer(from, initOwner(tokenId), tokenId);
-    }   
-
+    }
 }
