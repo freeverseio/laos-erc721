@@ -37,6 +37,10 @@ describe("ERC721Universal", function () {
     await erc721.waitForDeployment();
   });
 
+  it("Should report correct version of the uERC721 interface", async function () {
+    expect(await erc721.ERC721UniversalVersion()).to.equal(1);
+  });
+
   it("Should support the standard ERC721 interface", async function () {
     const InterfaceIdFactory = await ethers.getContractFactory(
       "InterfaceId",
@@ -74,7 +78,7 @@ describe("ERC721Universal", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721UniversalId = "0x3b8625e3";
+    const specified721UniversalId = "0x9832f941";
     expect(await interfaceId.getERC721UniversalId()).to.equal(specified721UniversalId);
     expect(await erc721.supportsInterface(specified721UniversalId)).to.equal(true);
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721UniversalId)).to.equal(true);

@@ -17,6 +17,9 @@ import "./IERC721UpdatableBaseURI.sol";
  */
 contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, Ownable {
 
+    /// @inheritdoc IERC721Universal
+    uint32 public constant ERC721UniversalVersion = 1;
+
     // if true, the baseURI cannot be changed ever again
     bool public isBaseURILocked;
 
@@ -77,7 +80,16 @@ contract ERC721Universal is IERC721Universal, IERC721UpdatableBaseURI, ERC721, O
         return 2 ** 96;
     }
 
-    /// @inheritdoc IERC721Universal
+    /**
+     * @notice Returns the initial owner address that must be encoded in tokenId
+     * @dev This function returns the same value regardless of whether the
+     *  token has been transferred once or more times.
+     *  The standard ERC721 method ownerOf() must continue to be used to query
+     *  the current owner of an token, as opposed to the initial owner.
+     * @dev The init owner is encoded as the right-most 160 bit of tokenId
+     * @param tokenId the id of the token for which the initial owner is queried
+     * @return the initial owner of the token
+     */
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
     }
