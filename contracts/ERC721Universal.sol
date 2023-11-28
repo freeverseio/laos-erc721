@@ -21,6 +21,9 @@ contract ERC721Universal is IERC721Universal, ERC721 {
     // the string prepended to tokenId to return tokenURI
     string public baseURI;
 
+    // the string used to insert tokenId when building a universal location
+    string private constant TOKENID_STR = "GeneralKey(";
+
     constructor(
         string memory name,
         string memory symbol,
@@ -73,6 +76,23 @@ contract ERC721Universal is IERC721Universal, ERC721 {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IERC721Universal).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice See {IERC721Metadata-tokenURI}.
+     * @dev This function overrides the one in the base ERC721 contract, to
+     *  return the correct universal location
+     * @return the baseURI used to build the tokenURI
+     */
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        _requireOwned(tokenId);
+        string memory __baseURI = _baseURI();
+        return
+            bytes(__baseURI).length > 0
+                ? string.concat(__baseURI, TOKENID_STR, Strings.toString(tokenId), ")")
+                : "";
     }
 
     /**
