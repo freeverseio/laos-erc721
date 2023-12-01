@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC721Universal.sol";
 import "./IERC721UpdatableBaseURI.sol";
+import "./IERC721Broadcast.sol";
 
 /**
  * @title Contract for Universal Minting and Evolution of ERC721 tokens
@@ -18,6 +19,7 @@ import "./IERC721UpdatableBaseURI.sol";
 contract ERC721Universal is
     IERC721Universal,
     IERC721UpdatableBaseURI,
+    IERC721Broadcast,
     ERC721,
     Ownable
 {
@@ -57,6 +59,21 @@ contract ERC721Universal is
         emit LockedBaseURI(_baseURIStorage);
     }
 
+    /// @inheritdoc IERC721Broadcast
+    function broadcastMint(uint256 tokenId) external {
+        _broadcast(tokenId, address(0));
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcastSelfTransfer(uint256 tokenId) external {
+        _broadcast(tokenId, initOwner(tokenId));
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function wasEverTransferred(uint256 tokenId) public view returns (bool) {
+        return (super._ownerOf(tokenId) != address(0)) || isBurned[tokenId];
+    }
+
     /**
      * @notice Burns `tokenId`
      * @dev The caller must own `tokenId` or be an approved operator.
@@ -84,6 +101,7 @@ contract ERC721Universal is
         return
             interfaceId == type(IERC721UpdatableBaseURI).interfaceId ||
             interfaceId == type(IERC721Universal).interfaceId ||
+            interfaceId == type(IERC721Broadcast).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
@@ -150,5 +168,19 @@ contract ERC721Universal is
         address _storageOwner = super._ownerOf(tokenId);
         return
             (_storageOwner == address(0)) ? initOwner(tokenId) : _storageOwner;
+    }
+
+    /**
+     * @notice For tokens that have never been transferred, it just emits an
+     *  ERC721 Transfer event from the provided 'from' address to the owner of the asset
+     * @dev This function reverts if the token has ever been transferred,
+     *  at least once, including tokens that have been burned.
+     * @param tokenId the id of the token to be broadcasted
+     * @param from the 'from' address to be used in the Transfer event
+     */
+    function _broadcast(uint256 tokenId, address from) private {
+        if (wasEverTransferred(tokenId))
+            revert ERC721UniversalAlreadyTransferred(tokenId);
+        emit Transfer(from, initOwner(tokenId), tokenId);
     }
 }
