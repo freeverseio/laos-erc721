@@ -135,7 +135,7 @@ describe("ERC721Universal", function () {
 
   it("Should return correct tokenURI", async function () {
     const tokenId = 1;
-    expect(await erc721.tokenURI(tokenId)).to.equal(defaultURI + tokenId);
+    expect(await erc721.tokenURI(tokenId)).to.equal(defaultURI + 'GeneralKey(' + tokenId + ')');
 
     const slot = "34";
     const largeTokenId = ethers.toBeHex(
@@ -144,7 +144,7 @@ describe("ERC721Universal", function () {
     );
     const largeTokenIdAsUint256 = ethers.toBigInt(largeTokenId);
     expect(await erc721.tokenURI(largeTokenId)).to.equal(
-      defaultURI + largeTokenIdAsUint256.toString(),
+      defaultURI + 'GeneralKey(' + largeTokenIdAsUint256.toString() + ')',
     );
   });
 

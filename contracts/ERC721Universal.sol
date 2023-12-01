@@ -35,6 +35,9 @@ contract ERC721Universal is
     // this string is prepended to tokenId to form the tokenURI
     string private _baseURIStorage;
 
+    // the string used to insert tokenId when building a universal location
+    string private constant TOKENID_STR = "GeneralKey(";
+
     constructor(
         address owner_,
         string memory name_,
@@ -140,6 +143,23 @@ contract ERC721Universal is
      */
     function initOwner(uint256 tokenId) public pure returns (address) {
         return address(uint160(tokenId));
+    }
+
+    /**
+     * @notice See {IERC721Metadata-tokenURI}.
+     * @dev This function overrides the one in the base ERC721 contract, to
+     *  return the correct universal location
+     * @return the baseURI used to build the tokenURI
+     */
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        _requireOwned(tokenId);
+        string memory __baseURI = _baseURI();
+        return
+            bytes(__baseURI).length > 0
+                ? string.concat(__baseURI, TOKENID_STR, Strings.toString(tokenId), ")")
+                : "";
     }
 
     /**
