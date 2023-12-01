@@ -559,11 +559,11 @@ describe("ERC721UpdatableBaseURI", function () {
   });
 
   it("updates to baseURI work", async function () {
-    await erc721.connect(addr1).updateBaseURI("new/mate");
-    expect(await erc721.baseURI()).to.equal("new/mate");
-    await erc721.connect(addr1).updateBaseURI("old/mate");
-    expect(await erc721.baseURI()).to.equal("old/mate");
-    expect(await erc721.tokenURI(1)).to.equal("old/mate1");
+    await erc721.connect(addr1).updateBaseURI("new/mate/");
+    expect(await erc721.baseURI()).to.equal("new/mate/");
+    await erc721.connect(addr1).updateBaseURI("old/mate/");
+    expect(await erc721.baseURI()).to.equal("old/mate/");
+    expect(await erc721.tokenURI(1)).to.equal("old/mate/GeneralKey(1)");
   });
 
   it("change in baseURI emits expected event", async function () {
