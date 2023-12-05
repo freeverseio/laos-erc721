@@ -8,7 +8,7 @@ This version introduces the `ERC721UniversalVersion()` method for the first time
 
 Breaking changes:
 
-1. **Interface change**. Constructor of the ERC721Universal smart contract now takes an extra parameter `owner`. Previously, there was no owner at all, because there was no method that required any privilege. The new methods that require it  are `updateBaseURI`, `lockBaseURI`. This is the constructor now:
+1. **Interface change**. The constructor of the ERC721Universal smart contract now takes an extra parameter `owner`. Previously, there was no owner at all, because there was no method that required any privilege. The new methods that require it are `updateBaseURI`, `lockBaseURI`. This is the constructor now:
 ```
     constructor(
         address owner_,
