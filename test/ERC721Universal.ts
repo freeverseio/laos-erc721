@@ -1,7 +1,6 @@
 // Import necessary Hardhat and ethers.js components
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { keccak256, toUtf8Bytes } from "ethers";
 
 import { RevertType } from "../utils/enums.ts";
 
@@ -30,11 +29,16 @@ describe("ERC721Universal", function () {
       "ERC721Universal",
     );
     erc721 = await ERC721UniversalFactory.deploy(
+      addr1.address,
       "laos-kitties",
       "LAK",
       defaultURI,
     );
     await erc721.waitForDeployment();
+  });
+
+  it("Should report correct version of the uERC721 interface", async function () {
+    expect(await erc721.ERC721UniversalVersion()).to.equal(1);
   });
 
   it("Should support the standard ERC721 interface", async function () {
@@ -74,27 +78,51 @@ describe("ERC721Universal", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721UniversalId = "0x57854508";
+    const specified721UniversalId = "0x9832f941";
     expect(await interfaceId.getERC721UniversalId()).to.equal(specified721UniversalId);
     expect(await erc721.supportsInterface(specified721UniversalId)).to.equal(true);
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721UniversalId)).to.equal(true);
   });
 
-  it("Should emit expected event on deploy", async function () {
+  it("Can query BaseURI", async function () {
+    expect(await erc721.baseURI()).to.equal(defaultURI);
+  });
+
+  it("Should emit OwnershipTransferred event on deploy", async function () {
+    const deployedTx = erc721.deploymentTransaction();
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(deployedTx)
+      .to.emit(erc721, "OwnershipTransferred")
+      .withArgs(nullAddress, addr1.address);
+
+    // assert that the signature of the event (topic0) matches the expected value
+    // first by computing it from the hash of the event type:
+    const expectedTopic0 = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
+    const computedTopic0 = ethers.id("OwnershipTransferred(address,address)");
+    expect(computedTopic0).to.equal(expectedTopic0);
+    // second by retrieving it from the TX directly
+    const receipt = await deployedTx?.wait();
+    const eventIdx = 0;
+    expect(receipt?.logs[eventIdx].topics[0]).to.equal(expectedTopic0);
+  });
+
+
+  it("Should emit NewERC721Universal event on deploy", async function () {
     const deployedTx = erc721.deploymentTransaction();
     const deployedAddress = await erc721.getAddress();
     await expect(deployedTx)
       .to.emit(erc721, "NewERC721Universal")
       .withArgs(deployedAddress, defaultURI);
+
     // assert that the signature of the event (topic0) matches the expected value
     // first by computing it from the hash of the event type:
     const expectedTopic0 = "0x74b81bc88402765a52dad72d3d893684f472a679558f3641500e0ee14924a10a";
-    const computedTopic0 = keccak256(toUtf8Bytes('NewERC721Universal(address,string)'));
+    const computedTopic0 = ethers.id("NewERC721Universal(address,string)");
     expect(computedTopic0).to.equal(expectedTopic0);
     // second by retrieving it from the TX directly
     const receipt = await deployedTx?.wait();
-    const log = receipt?.logs[0];
-    expect(log?.topics[0]).to.equal(expectedTopic0);
+    const eventIdx = 1;
+    expect(receipt?.logs[eventIdx].topics[0]).to.equal(expectedTopic0);
   });
 
   it("Should have the correct name and symbol", async function () {
@@ -193,7 +221,7 @@ describe("ERC721Universal", function () {
     expect(await erc721.balanceOf(addr3.address)).to.equal(maxBalance);
   });
 
-  it("Owner of the asset should be burn asset", async function () {
+  it("Owner of the asset should be able to burn the asset", async function () {
     const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
@@ -204,9 +232,13 @@ describe("ERC721Universal", function () {
 
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
 
+    expect(await erc721.isBurned(tokenId)).to.equal(false);
+
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
+
+    expect(await erc721.isBurned(tokenId)).to.equal(true);
 
     await expect(erc721.ownerOf(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721NonexistentToken")
@@ -478,5 +510,281 @@ describe("ERC721Universal", function () {
           { gasLimit: 300000 },
         ),
     ).to.be.revertedWith("ERC721ReceiverMock: reverting");
+  });
+});
+
+
+describe("ERC721UpdatableBaseURI", function () {
+  const defaultURI = "evochain1/collectionId/";
+
+  let addr1: HardhatEthersSigner;
+  let addr2: HardhatEthersSigner;
+
+  let erc721: ERC721Universal;
+
+  // Deploy the contract and prepare accounts
+  beforeEach(async function () {
+    [addr1, addr2] = await ethers.getSigners();
+
+    const ERC721UniversalFactory = await ethers.getContractFactory(
+      "ERC721Universal",
+    );
+    erc721 = await ERC721UniversalFactory.deploy(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    await erc721.waitForDeployment();
+  });
+
+  it("Should support the standard ERC721UpdatableBaseURI interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
+    const specified721Id = "0xb8382a4b";
+    expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specified721Id);
+    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+  });
+
+  it("baseURI cannot be updated by address that is not owner", async function () {
+    await expect(erc721.connect(addr2).updateBaseURI("new/mate"))
+      .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
+      .withArgs(addr2.address);
+  });
+
+  it("updates to baseURI work", async function () {
+    await erc721.connect(addr1).updateBaseURI("new/mate/");
+    expect(await erc721.baseURI()).to.equal("new/mate/");
+    await erc721.connect(addr1).updateBaseURI("old/mate/");
+    expect(await erc721.baseURI()).to.equal("old/mate/");
+    expect(await erc721.tokenURI(1)).to.equal("old/mate/GeneralKey(1)");
+  });
+
+  it("change in baseURI emits expected event", async function () {
+    await expect(await erc721.connect(addr1).updateBaseURI("new/mate"))
+      .to.emit(erc721, "UpdatedBaseURI")
+      .withArgs("new/mate");
+  });
+
+  it("is not locked on deploy", async function () {
+    expect(await erc721.isBaseURILocked()).to.equal(false);
+  });
+
+  it("onlyOwner can lock baseURI", async function () {
+    await expect(erc721.connect(addr2).lockBaseURI())
+      .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
+      .withArgs(addr2.address);
+  });
+
+  it("locking baseURI prevents further changes of baseURI", async function () {
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.emit(erc721, "LockedBaseURI")
+      .withArgs(defaultURI);
+
+    await expect(erc721.connect(addr1).updateBaseURI("new/mate"))
+      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
+      .withArgs();      
+  });
+
+  it("locking baseURI cannot be done twice", async function () {
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.emit(erc721, "LockedBaseURI")
+      .withArgs(defaultURI);
+
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
+      .withArgs();      
+  });
+});
+
+describe("ERC721Broadcast", function () {
+  const defaultURI = "evochain1/collectionId/";
+
+  let addr1: HardhatEthersSigner;
+  let addr2: HardhatEthersSigner;
+
+  let erc721: ERC721Universal;
+
+  // Deploy the contract and prepare accounts
+  beforeEach(async function () {
+    [addr1, addr2] = await ethers.getSigners();
+
+    const ERC721UniversalFactory = await ethers.getContractFactory(
+      "ERC721Universal",
+    );
+    erc721 = await ERC721UniversalFactory.deploy(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    await erc721.waitForDeployment();
+  });
+
+  it("Should support the standard ERC721Broadcast interface", async function () {
+    const InterfaceIdFactory = await ethers.getContractFactory(
+      "InterfaceId",
+    );
+    const interfaceId = await InterfaceIdFactory.deploy();
+    await interfaceId.waitForDeployment();
+
+    // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
+    const specified721Id = "0x9430f0b8";
+    expect(await interfaceId.getERC721BroadcastId()).to.equal(specified721Id);
+    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+  });
+
+  it("wasEverTransferred returns false on non-transferred assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(false);
+  });
+
+  it("wasEverTransferred returns true on transferred assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
+  });
+
+  it("wasEverTransferred returns true on burned assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(erc721.connect(addr1).burn(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId);
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
+  });
+
+  it("wasEverTransferred returns true on burned assets after having been transferred", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(false);
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(erc721.connect(addr2).burn(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr2.address, nullAddress, tokenId);
+    expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
+  });
+
+  it("broadcastMint works on non-transferred asset, and emits expected event", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    const nullAddress = ethers.toBeHex(0, 20);
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(nullAddress, addr1.address, tokenId);
+  });
+
+  it("broadcastSelfTransfer work on non-transferred asset, and emits expected event", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId);
+  });
+
+  it("broadcastMint reverts on transferred assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });  
+
+  it("broadcastSelfTransfer reverts on transferred assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });  
+
+  it("broadcastMint reverts on burned assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(
+      erc721.connect(addr1).burn(tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId);
+    await expect(erc721.connect(addr2).broadcastMint(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });
+
+  it("broadcastSelfTransfer reverts on burned assets", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    const nullAddress = ethers.toBeHex(0, 20);
+    await expect(
+      erc721.connect(addr1).burn(tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId);
+    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
   });
 });
