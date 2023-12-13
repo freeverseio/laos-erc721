@@ -2,7 +2,7 @@
 
 All breaking changes to this project will be documented in this file.
 
-## Version [TAG] Pending
+## v0.1.0 - 2023/12/05
 
 This version introduces the `ERC721UniversalVersion()` method for the first time, which returns `1`. Consider using this method to determine the contract version for support purposes.
 
