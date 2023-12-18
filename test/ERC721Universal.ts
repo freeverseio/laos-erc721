@@ -731,7 +731,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28170);
+    expect(receipt?.gasUsed).to.equal(28199);
   });
 
   it("broadcastMint cost of gas is as expected", async function () {
@@ -743,7 +743,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28214);
+    expect(receipt?.gasUsed).to.equal(28243);
   });
 
   it("broadcastMint reverts on transferred assets", async function () {
