@@ -734,6 +734,17 @@ describe("ERC721Broadcast", function () {
     expect(receipt?.gasUsed).to.equal(28170);
   });
 
+  it("broadcastMint cost of gas is as expected", async function () {
+    const slot = "111";
+    const tokenId = ethers.toBeHex(
+      "0x" + slot + addr1.address.substring(2),
+      32,
+    );
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    const tx = await erc721.connect(addr2).broadcastMint(tokenId);
+    const receipt = await tx.wait();
+    expect(receipt?.gasUsed).to.equal(28214);
+  });
 
   it("broadcastMint reverts on transferred assets", async function () {
     const slot = "111";
