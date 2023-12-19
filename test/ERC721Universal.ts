@@ -648,7 +648,28 @@ describe("ERC721Broadcast", function () {
       .withArgs(addr2.address, addr2.address, tokenId2);
    });
 
-   it("broadcastSelfTransfer cost of gas is as expected", async function () {
+   it("broadcastMint cost of gas is as expected", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    const tx = await erc721.connect(addr2).broadcastMint(tokenId);
+    const receipt = await tx.wait();
+    expect(receipt?.gasUsed).to.equal(28140);
+  });
+
+  it("broadcastMintBatch cost of gas is as expected", async function () {
+    const tokenIds: string[] = [];
+    const nTokens = 100;
+    for (let slot = 111; slot < 111 + nTokens; slot++) {
+      const tokenId = buildTokenId(slot.toString(), addr1.address);
+      tokenIds.push(tokenId);
+    }
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    const tx = await erc721.connect(addr2).broadcastMintBatch(tokenIds);
+    const receipt = await tx.wait();
+    expect(receipt?.gasUsed).to.equal(718563);
+  });
+
+  it("broadcastSelfTransfer cost of gas is as expected", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
