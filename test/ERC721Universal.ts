@@ -58,10 +58,10 @@ describe("ERC721Universal", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721Id = "0x80ac58cd";
-    expect(await interfaceId.getERC721Id()).to.equal(specified721Id);
-    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
-    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+    const specifiedId = "0x80ac58cd";
+    expect(await interfaceId.getERC721Id()).to.equal(specifiedId);
+    expect(await erc721.supportsInterface(specifiedId)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specifiedId)).to.equal(true);
   });
 
   it("Should support standard ERC165 interface", async function () {
@@ -477,10 +477,10 @@ describe("ERC721UpdatableBaseURI", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721Id = "0xb8382a4b";
-    expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specified721Id);
-    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
-    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+    const specifiedId = "0xb8382a4b";
+    expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specifiedId);
+    expect(await erc721.supportsInterface(specifiedId)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specifiedId)).to.equal(true);
   });
 
   it("baseURI cannot be updated by address that is not owner", async function () {
@@ -567,10 +567,10 @@ describe("ERC721Broadcast", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721Id = "0x8f8376c4";
-    expect(await interfaceId.getERC721BroadcastId()).to.equal(specified721Id);
-    expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
-    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
+    const specifiedId = "0x8f8376c4";
+    expect(await interfaceId.getERC721BroadcastId()).to.equal(specifiedId);
+    expect(await erc721.supportsInterface(specifiedId)).to.equal(true);
+    expect(await interfaceId.supportsInterface(await erc721.getAddress(), specifiedId)).to.equal(true);
   });
 
   it("wasEverTransferred returns false on non-transferred assets", async function () {
