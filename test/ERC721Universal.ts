@@ -143,12 +143,7 @@ describe("ERC721Universal", function () {
   it("Should return correct tokenURI", async function () {
     const tokenId = 1;
     expect(await erc721.tokenURI(tokenId)).to.equal(defaultURI + 'GeneralKey(' + tokenId + ')');
-
-    const slot = "34";
-    const largeTokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const largeTokenId = buildTokenId("34", addr1.address);
     const largeTokenIdAsUint256 = ethers.toBigInt(largeTokenId);
     expect(await erc721.tokenURI(largeTokenId)).to.equal(
       defaultURI + 'GeneralKey(' + largeTokenIdAsUint256.toString() + ')',
@@ -188,11 +183,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset should be able to transfer asset", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
@@ -220,11 +211,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset should be able to burn the asset", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
@@ -245,11 +232,7 @@ describe("ERC721Universal", function () {
   });
 
   it("burn can be executed by approved operator", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
     expect(await erc721.balanceOf(addr1.address)).to.equal(maxBalance);
 
@@ -265,11 +248,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Asset cannot be burned by address that is not its owner", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     await expect(erc721.connect(addr2).burn(tokenId))
@@ -278,11 +257,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Asset cannot be burned twice", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     await expect(erc721.connect(addr1).burn(tokenId))
@@ -295,11 +270,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset cannot be transferred", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
@@ -318,11 +289,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset has no owner - query must fail", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
@@ -339,11 +306,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset has no tokenURI - query must fail", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
@@ -360,11 +323,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset cannot transfer to null address via transfer method", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     await expect(
@@ -375,11 +334,7 @@ describe("ERC721Universal", function () {
   });
 
   it("User should not be able to transfer an asset that he does not own", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     await expect(
@@ -390,11 +345,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset should be able to do safe transfer of asset", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMock =
@@ -417,11 +368,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset should be able to do safe transfer of asset with data", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMock =
@@ -450,11 +397,7 @@ describe("ERC721Universal", function () {
   });
 
   it("When Owner of the asset does safe transfer the receiver contract reverts on call", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMockFactory =
@@ -474,11 +417,7 @@ describe("ERC721Universal", function () {
   });
 
   it("When Owner of the asset does safe transfer with data the receiver contract reverts on call", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
     const ERC721ReceiverMockFactory =
@@ -507,7 +446,6 @@ describe("ERC721Universal", function () {
 
 describe("ERC721UpdatableBaseURI", function () {
   const defaultURI = "evochain1/collectionId/";
-  const nullAddress = ethers.toBeHex(0, 20);
 
   let addr1: HardhatEthersSigner;
   let addr2: HardhatEthersSigner;
@@ -635,20 +573,12 @@ describe("ERC721Broadcast", function () {
   });
 
   it("wasEverTransferred returns false on non-transferred assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.wasEverTransferred(tokenId)).to.equal(false);
   });
 
   it("wasEverTransferred returns true on transferred assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
@@ -658,11 +588,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("wasEverTransferred returns true on burned assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
@@ -670,11 +596,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("wasEverTransferred returns true on burned assets after having been transferred", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.wasEverTransferred(tokenId)).to.equal(false);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
@@ -689,11 +611,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("broadcastMint works on non-transferred asset, and emits expected event", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.emit(erc721, "Transfer")
@@ -701,11 +619,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("broadcastSelfTransfer work on non-transferred asset, and emits expected event", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
       .to.emit(erc721, "Transfer")
@@ -713,11 +627,7 @@ describe("ERC721Broadcast", function () {
    });
 
    it("broadcastSelfTransfer cost of gas is as expected", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
     const receipt = await tx.wait();
@@ -728,12 +638,8 @@ describe("ERC721Broadcast", function () {
     const tokenIds: string[] = [];
     const nTokens = 100;
     for (let slot = 111; slot < 111 + nTokens; slot++) {
-      tokenIds.push(
-        ethers.toBeHex(
-          "0x" + slot + addr1.address.substring(2),
-          32,
-        ) 
-      )
+      const tokenId = buildTokenId(slot.toString(), addr1.address);
+      tokenIds.push(tokenId);
     }
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransferBatch(tokenIds);
@@ -742,11 +648,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("broadcastMint reverts on transferred assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
@@ -758,11 +660,7 @@ describe("ERC721Broadcast", function () {
   });  
 
   it("broadcastSelfTransfer reverts on transferred assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
@@ -774,11 +672,7 @@ describe("ERC721Broadcast", function () {
   });  
 
   it("broadcastMint reverts on burned assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
@@ -790,11 +684,7 @@ describe("ERC721Broadcast", function () {
   });
 
   it("broadcastSelfTransfer reverts on burned assets", async function () {
-    const slot = "111";
-    const tokenId = ethers.toBeHex(
-      "0x" + slot + addr1.address.substring(2),
-      32,
-    );
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
