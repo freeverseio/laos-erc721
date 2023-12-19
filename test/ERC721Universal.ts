@@ -643,7 +643,9 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, addr1.address, tokenId);
+      .withArgs(addr1.address, addr1.address, tokenId)
+      .and.to.emit(erc721, "Transfer")
+      .withArgs(addr2.address, addr2.address, tokenId2);
    });
 
    it("broadcastSelfTransfer cost of gas is as expected", async function () {
