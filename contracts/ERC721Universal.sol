@@ -63,6 +63,21 @@ contract ERC721Universal is
     }
 
     /// @inheritdoc IERC721Broadcast
+    function broadcastMintBatch(uint256[] calldata tokenIds) external {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            _broadcast(tokenIds[i], address(0));
+        }
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcastSelfTransferBatch(uint256[] calldata tokenIds) external {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            _broadcast(tokenId, initOwner(tokenId));
+        }
+    }
+
+    /// @inheritdoc IERC721Broadcast
     function broadcastMint(uint256 tokenId) external {
         _broadcast(tokenId, address(0));
     }
@@ -158,7 +173,12 @@ contract ERC721Universal is
         string memory __baseURI = _baseURI();
         return
             bytes(__baseURI).length > 0
-                ? string.concat(__baseURI, TOKENID_STR, Strings.toString(tokenId), ")")
+                ? string.concat(
+                    __baseURI,
+                    TOKENID_STR,
+                    Strings.toString(tokenId),
+                    ")"
+                )
                 : "";
     }
 

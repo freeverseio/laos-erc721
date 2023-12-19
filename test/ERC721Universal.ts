@@ -635,7 +635,7 @@ describe("ERC721Broadcast", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specified721Id = "0x9430f0b8";
+    const specified721Id = "0x8f8376c4";
     expect(await interfaceId.getERC721BroadcastId()).to.equal(specified721Id);
     expect(await erc721.supportsInterface(specified721Id)).to.equal(true);
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specified721Id)).to.equal(true);
@@ -731,9 +731,25 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28141);
+    expect(receipt?.gasUsed).to.equal(28164);
   });
 
+  it("broadcastSelfTransferBatch cost of gas is as expected", async function () {
+    const tokenIds: string[] = [];
+    const nTokens = 100;
+    for (let slot = 111; slot < 111 + nTokens; slot++) {
+      tokenIds.push(
+        ethers.toBeHex(
+          "0x" + slot + addr1.address.substring(2),
+          32,
+        ) 
+      )
+    }
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    const tx = await erc721.connect(addr2).broadcastSelfTransferBatch(tokenIds);
+    const receipt = await tx.wait();
+    expect(receipt?.gasUsed).to.equal(721319);
+  });
 
   it("broadcastMint reverts on transferred assets", async function () {
     const slot = "111";
