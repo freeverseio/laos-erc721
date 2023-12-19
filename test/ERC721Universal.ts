@@ -6,7 +6,6 @@ import { RevertType } from "../utils/enums.ts";
 
 import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js";
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
-import { ERC721EnumerableMock } from "../typechain-types/contracts/tests/ERC721EnumerableMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 function buildTokenId(slot: string, addr: string) {
