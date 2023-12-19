@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional broadcastMint extension
- * @dev The ERC-165 identifier for this interface is 0x9430f0b8
+ * @dev The ERC-165 identifier for this interface is 0x8f8376c4
  * @author Freeverse.io, www.freeverse.io
  */
 interface IERC721Broadcast {
