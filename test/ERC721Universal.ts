@@ -618,10 +618,30 @@ describe("ERC721Broadcast", function () {
       .withArgs(nullAddress, addr1.address, tokenId);
   });
 
-  it("broadcastSelfTransfer work on non-transferred asset, and emits expected event", async function () {
+  it("broadcastMintBatch works on non-transferred assets, and emits expected events", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr2.address);
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    await expect(erc721.connect(addr2).broadcastMintBatch([tokenId, tokenId2]))
+      .to.emit(erc721, "Transfer")
+      .withArgs(nullAddress, addr1.address, tokenId)
+      .and.to.emit(erc721, "Transfer")
+      .withArgs(nullAddress, addr2.address, tokenId2);
+  });
+
+  it("broadcastSelfTransfer works on non-transferred asset, and emits expected event", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId);
+   });
+
+   it("broadcastSelfTransferBatch works on non-transferred assets, and emits expected events", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr2.address);
+    // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
+    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr1.address, tokenId);
    });
