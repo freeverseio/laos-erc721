@@ -169,27 +169,21 @@ describe("ERC721Universal", function () {
   });
 
   it("initOwner decodes as expected", async function () {
-    let slot = "111";
-    let tokenId = ethers.toBeHex("0x" + slot + addr1.address.substring(2), 32);
+    let tokenId = buildTokenId("111", addr1.address);
     expect(await erc721.initOwner(tokenId)).to.equal(addr1.address);
 
-    slot = "";
-    tokenId = ethers.toBeHex("0x" + slot + addr1.address.substring(2), 32);
+    tokenId = buildTokenId("", addr1.address);
     expect(await erc721.initOwner(tokenId)).to.equal(addr1.address);
 
-    slot = "";
-    tokenId = ethers.toBeHex("0x" + slot + addr2.address.substring(2), 32);
+    tokenId = buildTokenId("", addr2.address);
     expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
 
-    slot = "";
-    tokenId = ethers.toBeHex("0x" + slot + nullAddress.substring(2), 32);
+    tokenId = buildTokenId("", nullAddress);
     expect(await erc721.initOwner(tokenId)).to.equal(nullAddress);
 
     const largestSlot = ethers.toBeHex(2n ** 96n - 1n, 12);
-    tokenId = ethers.toBeHex(
-      "0x" + largestSlot.substring(2) + addr2.address.substring(2),
-      32,
-    );
+    tokenId = buildTokenId(largestSlot.substring(2), addr2.address);
+
     expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
   });
 
