@@ -702,6 +702,19 @@ describe("ERC721Broadcast", function () {
       .withArgs(tokenId);
   });  
 
+  it("broadcastMintBatch reverts on at least one transferred asset", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr1.address);
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    await expect(erc721.connect(addr2).broadcastMintBatch([tokenId, tokenId2]))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });  
+
   it("broadcastSelfTransfer reverts on transferred assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
@@ -710,6 +723,19 @@ describe("ERC721Broadcast", function () {
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
     await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
+      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
+      .withArgs(tokenId);
+  });  
+
+  it("broadcastSelfTransferBatch reverts on at least one transferred asset", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr1.address);
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId);
+    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
       .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
       .withArgs(tokenId);
   });  
