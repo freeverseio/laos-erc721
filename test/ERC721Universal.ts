@@ -6,6 +6,7 @@ import { RevertType } from "../utils/enums.ts";
 
 import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js";
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
+import { ERC721EnumerableMock } from "../typechain-types/contracts/tests/ERC721EnumerableMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 function buildTokenId(slot: string, addr: string) {
@@ -648,7 +649,22 @@ describe("ERC721Broadcast", function () {
       .withArgs(addr2.address, addr2.address, tokenId2);
    });
 
-   it("broadcastMint cost of gas is as expected", async function () {
+   it("Standard mint on ERC721Enumerable costs gas as expected", async function () {
+    const ERC721EnumerableFactory = await ethers.getContractFactory(
+      "ERC721EnumerableMock",
+    );
+    const erc721Enum = await ERC721EnumerableFactory.deploy(
+      "laos-kitties",
+      "LAK"
+    );
+    await erc721Enum.waitForDeployment();
+    const tokenId = buildTokenId("111", addr1.address);
+    const tx = await erc721Enum.connect(addr2).mint(addr2.address, tokenId);
+    const receipt = await tx.wait();
+    expect(receipt?.gasUsed).to.equal(140683);
+  });
+   
+  it("broadcastMint cost of gas is as expected", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
