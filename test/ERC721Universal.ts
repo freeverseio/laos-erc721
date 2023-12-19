@@ -8,9 +8,17 @@ import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
+function buildTokenId(slot: string, addr: string) {
+  return ethers.toBeHex(
+    "0x" + slot + addr.substring(2),
+    32,
+  );
+}
+
 describe("ERC721Universal", function () {
   const maxBalance = 2n ** 96n;
   const defaultURI = "evochain1/collectionId/";
+  const nullAddress = ethers.toBeHex(0, 20);
 
   let addr1: HardhatEthersSigner;
   let addr2: HardhatEthersSigner;
@@ -90,7 +98,6 @@ describe("ERC721Universal", function () {
 
   it("Should emit OwnershipTransferred event on deploy", async function () {
     const deployedTx = erc721.deploymentTransaction();
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(deployedTx)
       .to.emit(erc721, "OwnershipTransferred")
       .withArgs(nullAddress, addr1.address);
@@ -155,9 +162,7 @@ describe("ERC721Universal", function () {
   });
 
   it("The null address is the only one that cannot own tokens", async function () {
-    const slot = "34";
-    const nullAddress = ethers.toBeHex(0, 20);
-    const tokenId = ethers.toBeHex("0x" + slot + nullAddress.substring(2), 32);
+    const tokenId = buildTokenId("34", nullAddress);
     await expect(erc721.ownerOf(tokenId))
       .to.be.revertedWithCustomError(erc721, "ERC721NonexistentToken")
       .withArgs(tokenId);
@@ -177,7 +182,6 @@ describe("ERC721Universal", function () {
     expect(await erc721.initOwner(tokenId)).to.equal(addr2.address);
 
     slot = "";
-    const nullAddress = ethers.toBeHex(0, 20);
     tokenId = ethers.toBeHex("0x" + slot + nullAddress.substring(2), 32);
     expect(await erc721.initOwner(tokenId)).to.equal(nullAddress);
 
@@ -222,7 +226,6 @@ describe("ERC721Universal", function () {
   });
 
   it("Owner of the asset should be able to burn the asset", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -248,7 +251,6 @@ describe("ERC721Universal", function () {
   });
 
   it("burn can be executed by approved operator", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -282,7 +284,6 @@ describe("ERC721Universal", function () {
   });
 
   it("Asset cannot be burned twice", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -300,7 +301,6 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset cannot be transferred", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -324,7 +324,6 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset has no owner - query must fail", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -346,7 +345,6 @@ describe("ERC721Universal", function () {
   });
 
   it("Burned asset has no tokenURI - query must fail", async function () {
-    const nullAddress = ethers.toBeHex(0, 20);
     const slot = "111";
     const tokenId = ethers.toBeHex(
       "0x" + slot + addr1.address.substring(2),
@@ -375,7 +373,6 @@ describe("ERC721Universal", function () {
     );
     expect(await erc721.ownerOf(tokenId)).to.equal(addr1.address);
 
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(
       erc721.connect(addr2).transferFrom(addr2.address, nullAddress, tokenId),
     )
@@ -516,6 +513,7 @@ describe("ERC721Universal", function () {
 
 describe("ERC721UpdatableBaseURI", function () {
   const defaultURI = "evochain1/collectionId/";
+  const nullAddress = ethers.toBeHex(0, 20);
 
   let addr1: HardhatEthersSigner;
   let addr2: HardhatEthersSigner;
@@ -605,6 +603,7 @@ describe("ERC721UpdatableBaseURI", function () {
 
 describe("ERC721Broadcast", function () {
   const defaultURI = "evochain1/collectionId/";
+  const nullAddress = ethers.toBeHex(0, 20);
 
   let addr1: HardhatEthersSigner;
   let addr2: HardhatEthersSigner;
@@ -670,7 +669,6 @@ describe("ERC721Broadcast", function () {
       "0x" + slot + addr1.address.substring(2),
       32,
     );
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(erc721.connect(addr1).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
@@ -690,7 +688,6 @@ describe("ERC721Broadcast", function () {
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
     expect(await erc721.wasEverTransferred(tokenId)).to.equal(true);
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(erc721.connect(addr2).burn(tokenId))
       .to.emit(erc721, "Transfer")
       .withArgs(addr2.address, nullAddress, tokenId);
@@ -703,7 +700,6 @@ describe("ERC721Broadcast", function () {
       "0x" + slot + addr1.address.substring(2),
       32,
     );
-    const nullAddress = ethers.toBeHex(0, 20);
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     await expect(erc721.connect(addr2).broadcastMint(tokenId))
       .to.emit(erc721, "Transfer")
@@ -789,7 +785,6 @@ describe("ERC721Broadcast", function () {
       "0x" + slot + addr1.address.substring(2),
       32,
     );
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
@@ -806,7 +801,6 @@ describe("ERC721Broadcast", function () {
       "0x" + slot + addr1.address.substring(2),
       32,
     );
-    const nullAddress = ethers.toBeHex(0, 20);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
