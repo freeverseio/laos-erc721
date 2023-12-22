@@ -24,7 +24,7 @@ contract ERC721Universal is
     Ownable
 {
     /// @inheritdoc IERC721Universal
-    uint32 public constant ERC721UniversalVersion = 1;
+    uint32 public constant ERC721UniversalVersion = 2;
 
     /// @inheritdoc IERC721UpdatableBaseURI
     bool public isBaseURILocked;
@@ -60,6 +60,21 @@ contract ERC721Universal is
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         isBaseURILocked = true;
         emit LockedBaseURI(_baseURIStorage);
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcastMintBatch(uint256[] calldata tokenIds) external {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            _broadcast(tokenIds[i], address(0));
+        }
+    }
+
+    /// @inheritdoc IERC721Broadcast
+    function broadcastSelfTransferBatch(uint256[] calldata tokenIds) external {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            _broadcast(tokenId, initOwner(tokenId));
+        }
     }
 
     /// @inheritdoc IERC721Broadcast
@@ -158,7 +173,12 @@ contract ERC721Universal is
         string memory __baseURI = _baseURI();
         return
             bytes(__baseURI).length > 0
-                ? string.concat(__baseURI, TOKENID_STR, Strings.toString(tokenId), ")")
+                ? string.concat(
+                    __baseURI,
+                    TOKENID_STR,
+                    Strings.toString(tokenId),
+                    ")"
+                )
                 : "";
     }
 

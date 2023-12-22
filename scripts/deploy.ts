@@ -1,9 +1,9 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const tokenName = "laos-kitties";
-  const tokenSymbol = "LAK";
-  const baseURI = "evochain1/collectionId/";
+  const collectionName = "Bridgeless Minting";
+  const tokenSymbol = "LAETH";
+  const baseURI = "https://uloc.io/GlobalConsensus(3)/Parachain(3336)/PalletInstance(51)/AccountKey20(0xfffffffffffffffffffffffe0000000000000044)/";
 
   const accounts = await ethers.getSigners();
   console.log("Deploying contracts with the account:", accounts[0].address);
@@ -14,7 +14,7 @@ async function main() {
 
   const instance = await ContractFactory.deploy(
     accounts[0].address,
-    tokenName,
+    collectionName,
     tokenSymbol,
     baseURI,
   );

@@ -2,7 +2,17 @@
 
 All breaking changes to this project will be documented in this file.
 
-## Version [TAG] Pending
+## Version [v0.2.0]
+
+This version introduces the batch versions of broadcast: `broadcastMintBatch` and `broadcastSelfTransferBatch`, which can lead to significant gas savings. 
+
+Breaking changes: 
+
+1. **InterfaceId change**. The new `interfaceId` for the `IERC721Broadcast` is now `0x8f8376c4`.
+
+
+
+## Version [v0.1.0]
 
 This version introduces the `ERC721UniversalVersion()` method for the first time, which returns `1`. Consider using this method to determine the contract version for support purposes.
 
