@@ -24,7 +24,7 @@ contract ERC721Universal is
     Ownable
 {
     /// @inheritdoc IERC721Universal
-    uint32 public constant ERC721UniversalVersion = 1;
+    uint32 public constant ERC721UniversalVersion = 2;
 
     /// @inheritdoc IERC721UpdatableBaseURI
     bool public isBaseURILocked;

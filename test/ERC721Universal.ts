@@ -46,7 +46,7 @@ describe("ERC721Universal", function () {
   });
 
   it("Should report correct version of the uERC721 interface", async function () {
-    expect(await erc721.ERC721UniversalVersion()).to.equal(1);
+    expect(await erc721.ERC721UniversalVersion()).to.equal(2);
   });
 
   it("Should support the standard ERC721 interface", async function () {
