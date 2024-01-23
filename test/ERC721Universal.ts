@@ -476,7 +476,7 @@ describe("ERC721UpdatableBaseURI", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specifiedId = "0xb8382a4b";
+    const specifiedId = "0x418fb255";
     expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specifiedId);
     expect(await erc721.supportsInterface(specifiedId)).to.equal(true);
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specifiedId)).to.equal(true);
@@ -668,7 +668,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28140);
+    expect(receipt?.gasUsed).to.equal(28207);
   });
 
   it("broadcastMintBatch cost of gas is as expected", async function () {

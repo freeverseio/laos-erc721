@@ -78,7 +78,7 @@ Here are approximate gas costs for comparison (check the [tests](./test/ERC721Un
 * Any number of mints in DApps using any of the above patterns: 0 gas
 * Mint of 1 asset using the default [OpenZeppelin ERC721 Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts): 140,683 gas
 * `broadcastMint` of 1 asset: 28,140 gas
-* `broadcastSelfTransfer` of 1 asset: 28,164 gas
+* `broadcastSelfTransfer` of 1 asset: 28,207 gas
 * `broadcastSelfTransferBatch` of 1000 assets: 7,016,723 = 7,016 per asset
 
 

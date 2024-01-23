@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
  * @title Interface for ERC721 contracts which use a baseURI string
  *  to generate the tokenURI programmatically. It provides essential
  *  functions for managing the baseURI string.
- * @dev The ERC-165 identifier for this interface is 0xb8382a4b
+ * @dev The ERC-165 identifier for this interface is 0x418fb255
  * @author Freeverse.io, www.freeverse.io
  */
 interface IERC721UpdatableBaseURI {
@@ -27,21 +27,39 @@ interface IERC721UpdatableBaseURI {
     event LockedBaseURI(string baseURI);
 
     /**
-     * @notice Returns true if the baseURI is permanently locked
-     * @return true if the baseURI is permanently locked
-     */
-    function isBaseURILocked() external view returns (bool);
+     * @notice Event emitted on update of TokenId prefix and suffix
+     * @param newPrefix the new string to be placed before the tokenId
+     * @param newSuffix the new string to be placed after the tokenId
+      */
+    event updatedTokenIdAffixes(string newPrefix, string newSuffix);
 
     /**
      * @notice Updates the baseURI that is used to build the tokenURIs
-     * @dev Only the owner of the ERC721 must be authorized to call this method
+     * @dev Only the owner of the ERC721 must is authorized to call this method
+     * @dev This method reverts if the baseURI is locked
      * @param newBaseURI the baseURI to be used to build the tokenURIs
      */
     function updateBaseURI(string calldata newBaseURI) external;
 
     /**
      * @notice Prevents any further change of the baseURI, permanently, by any actor
-     * @dev Only the owner of the ERC721 must be authorized to call this method
+     * @dev Only the owner of the ERC721 must is authorized to call this method
+     * @dev This method reverts if the baseURI is locked
      */
     function lockBaseURI() external;
+
+    /**
+     * @notice Updates the prefix and suffix strings placed around the tokenId to build the tokenURI
+     * @dev Only the owner of the ERC721 must is authorized to call this method
+     * @dev This method reverts if the baseURI is locked
+     * @param newPrefix the new string to be placed before the tokenId
+     * @param newSuffix the new string to be placed after the tokenId
+     */
+    function updateTokenIdAffixes(string calldata newPrefix, string calldata newSuffix) external;
+
+    /**
+     * @notice Returns true if the baseURI is permanently locked
+     * @return true if the baseURI is permanently locked
+     */
+    function isBaseURILocked() external view returns (bool);
 }
