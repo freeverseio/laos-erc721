@@ -35,8 +35,14 @@ contract ERC721Universal is
     // this string is prepended to tokenId to form the tokenURI
     string private _baseURIStorage;
 
-    // the string used to insert tokenId when building a universal location
-    string private constant TOKENID_STR = "GeneralKey(";
+    // the strings to be placed before & after tokenId to build a tokenURI
+    string private TOKENID_PRE = "GeneralKey(";
+    string private TOKENID_POST = ")";
+
+    modifier baseURINotLocked {
+        if (isBaseURILocked) revert BaseURIAlreadyLocked();
+        _;
+    }
 
     constructor(
         address owner_,
@@ -49,17 +55,22 @@ contract ERC721Universal is
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
-    function updateBaseURI(string calldata newBaseURI) external onlyOwner {
-        if (isBaseURILocked) revert BaseURIAlreadyLocked();
+    function updateBaseURI(string calldata newBaseURI) external onlyOwner baseURINotLocked {
         _baseURIStorage = newBaseURI;
         emit UpdatedBaseURI(newBaseURI);
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
-    function lockBaseURI() external onlyOwner {
-        if (isBaseURILocked) revert BaseURIAlreadyLocked();
+    function lockBaseURI() external onlyOwner baseURINotLocked {
         isBaseURILocked = true;
         emit LockedBaseURI(_baseURIStorage);
+    }
+
+    /// @inheritdoc IERC721UpdatableBaseURI
+    function updateTokenIdAffixes(string calldata newPrefix, string calldata newSuffix) external onlyOwner baseURINotLocked {
+        TOKENID_PRE = newPrefix;
+        TOKENID_POST = newSuffix;
+        emit UpdatedTokenIdAffixes(newPrefix, newSuffix);
     }
 
     /// @inheritdoc IERC721Broadcast
@@ -175,9 +186,9 @@ contract ERC721Universal is
             bytes(__baseURI).length > 0
                 ? string.concat(
                     __baseURI,
-                    TOKENID_STR,
+                    TOKENID_PRE,
                     Strings.toString(tokenId),
-                    ")"
+                    TOKENID_POST
                 )
                 : "";
     }

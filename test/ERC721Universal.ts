@@ -476,7 +476,7 @@ describe("ERC721UpdatableBaseURI", function () {
     await interfaceId.waitForDeployment();
 
     // Tests both via direct contract calls, as well the on-chain OpenZeppelin lib checker:
-    const specifiedId = "0xb8382a4b";
+    const specifiedId = "0x418fb255";
     expect(await interfaceId.getERC721UpdatableBaseURIId()).to.equal(specifiedId);
     expect(await erc721.supportsInterface(specifiedId)).to.equal(true);
     expect(await interfaceId.supportsInterface(await erc721.getAddress(), specifiedId)).to.equal(true);
@@ -517,7 +517,19 @@ describe("ERC721UpdatableBaseURI", function () {
       .to.emit(erc721, "LockedBaseURI")
       .withArgs(defaultURI);
 
+    expect(await erc721.isBaseURILocked()).to.equal(true);
+
     await expect(erc721.connect(addr1).updateBaseURI("new/mate"))
+      .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
+      .withArgs();      
+  });
+
+  it("locking baseURI prevents further changes of affixes", async function () {
+    await expect(erc721.connect(addr1).lockBaseURI())
+      .to.emit(erc721, "LockedBaseURI")
+      .withArgs(defaultURI);
+
+    await expect(erc721.connect(addr1).updateTokenIdAffixes("newprefix", "newsuffix"))
       .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
       .withArgs();      
   });
@@ -530,6 +542,26 @@ describe("ERC721UpdatableBaseURI", function () {
     await expect(erc721.connect(addr1).lockBaseURI())
       .to.be.revertedWithCustomError(erc721, "BaseURIAlreadyLocked")
       .withArgs();      
+  });
+
+  it("onlyOwner can update affixes", async function () {
+    await expect(erc721.connect(addr2).updateTokenIdAffixes("newprefix", "newsuffix"))
+      .to.be.revertedWithCustomError(erc721, "OwnableUnauthorizedAccount")
+      .withArgs(addr2.address);
+  });
+
+  it("updates to affixes work", async function () {
+    expect(await erc721.baseURI()).to.equal(defaultURI);
+    expect(await erc721.tokenURI(1)).to.equal(defaultURI + "GeneralKey(1)");
+    await erc721.connect(addr1).updateTokenIdAffixes("newprefix", "newsuffix");
+    expect(await erc721.baseURI()).to.equal(defaultURI);
+    expect(await erc721.tokenURI(1)).to.equal(defaultURI + "newprefix1newsuffix");
+  });
+
+  it("updates to affixes emits expected event", async function () {
+    await expect(await erc721.connect(addr1).updateTokenIdAffixes("newprefix", "newsuffix"))
+      .to.emit(erc721, "UpdatedTokenIdAffixes")
+      .withArgs("newprefix", "newsuffix");
   });
 });
 
@@ -668,7 +700,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28140);
+    expect(receipt?.gasUsed).to.equal(28207);
   });
 
   it("broadcastMintBatch cost of gas is as expected", async function () {
