@@ -560,7 +560,7 @@ describe("ERC721UpdatableBaseURI", function () {
 
   it("updates to affixes emits expected event", async function () {
     await expect(await erc721.connect(addr1).updateTokenIdAffixes("newprefix", "newsuffix"))
-      .to.emit(erc721, "updatedTokenIdAffixes")
+      .to.emit(erc721, "UpdatedTokenIdAffixes")
       .withArgs("newprefix", "newsuffix");
   });
 });

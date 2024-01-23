@@ -70,7 +70,7 @@ contract ERC721Universal is
     function updateTokenIdAffixes(string calldata newPrefix, string calldata newSuffix) external onlyOwner baseURINotLocked {
         TOKENID_PRE = newPrefix;
         TOKENID_POST = newSuffix;
-        emit updatedTokenIdAffixes(newPrefix, newSuffix);
+        emit UpdatedTokenIdAffixes(newPrefix, newSuffix);
     }
 
     /// @inheritdoc IERC721Broadcast

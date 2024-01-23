@@ -31,7 +31,7 @@ interface IERC721UpdatableBaseURI {
      * @param newPrefix the new string to be placed before the tokenId
      * @param newSuffix the new string to be placed after the tokenId
       */
-    event updatedTokenIdAffixes(string newPrefix, string newSuffix);
+    event UpdatedTokenIdAffixes(string newPrefix, string newSuffix);
 
     /**
      * @notice Updates the baseURI that is used to build the tokenURIs
