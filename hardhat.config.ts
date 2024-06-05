@@ -35,7 +35,7 @@ const config: HardhatUserConfig = {
     },
 
     polygonMainnet: {
-      url: 'https://polygon-bor.publicnode.com', // URL of your custom network
+      url: 'https://polygon-rpc.com', // URL of your custom network
       chainId: 137, // The Chain ID of your custom network
       gas: 'auto', // Gas settings
       gasPrice: 'auto', // Gas price settings
