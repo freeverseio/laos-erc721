@@ -21,6 +21,9 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  sourcify: {
+    enabled: true
+  },  
   networks: {
     hardhat: {
       chainId: 1337, // Hardhat Network's chain ID
@@ -49,6 +52,7 @@ const config: HardhatUserConfig = {
       gasPrice: 'auto', // Gas price settings
       accounts: [`0x${privateKey}`],
     },
+
   },
 
   etherscan: {

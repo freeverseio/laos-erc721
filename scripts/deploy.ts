@@ -1,9 +1,9 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const collectionName = "Bridgeless Minting";
-  const tokenSymbol = "LAETH";
-  const baseURI = "https://uloc.io/GlobalConsensus(3)/Parachain(3336)/PalletInstance(51)/AccountKey20(0xfffffffffffffffffffffffe0000000000000044)/";
+  const collectionName = "LAOS Bridgeless Minting on Ethereum";
+  const tokenSymbol = "LAOSETH";
+  const baseURI = "https://uloc.io/GlobalConsensus(0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f)/Parachain(4006)/PalletInstance(51)/AccountKey20(0xfffffffffffffffffffffffe000000000000000e)/";
 
   const accounts = await ethers.getSigners();
   console.log("Deploying contracts with the account:", accounts[0].address);
