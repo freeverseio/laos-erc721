@@ -27,8 +27,8 @@ const config: HardhatUserConfig = {
     },
 
     polygonTestnet: {
-      url: 'https://polygon-mumbai-bor.publicnode.com', // URL of your custom network
-      chainId: 80001, // The Chain ID of your custom network
+      url: 'https://polygon-amoy-bor-rpc.publicnode.com/', // URL of your custom network
+      chainId: 80002, // The Chain ID of your custom network
       gas: 'auto', // Gas settings
       gasPrice: 'auto', // Gas price settings
       accounts: [`0x${privateKey}`],
