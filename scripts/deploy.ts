@@ -8,7 +8,7 @@ async function main() {
 
   // Set the 4 params used in the constructor: onwerOfCollection, collectionName, tokenSymbol, and baseURI.
   // For setting baseURI:
-  // - select between LAOSMainnetULOC / LAOSSigmaTestnetULOC
+  // - select between LAOS Mainnet or LAOS Sigma Testnet
   // - Make sure the baseURI ends with a slash character "/"
 
   const ownerOfCollection = accounts[0].address;
