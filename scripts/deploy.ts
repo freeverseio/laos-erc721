@@ -5,8 +5,6 @@ import { ethers, network } from "hardhat";
 
 async function main() {
   const accounts = await ethers.getSigners();
-  const LAOSMainnetULOC = "https://uloc.io/GlobalConsensus(2)/Parachain(3370)/PalletInstance(51)";
-  const LAOSSigmaTestnetULOC = "GlobalConsensus(0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f)/Parachain(4006)/PalletInstance(51)";
 
   // Set the 4 params used in the constructor: onwerOfCollection, collectionName, tokenSymbol, and baseURI.
   // For setting baseURI:
@@ -17,7 +15,14 @@ async function main() {
   const collectionName = "Bridgeless Minting";
   const tokenSymbol = "LAETH";
   const siblingCollectionInLAOS = "0xfFFFFFffFFFFFFFFfFFffFFe0000000000000002";
-  const baseURI = `${LAOSSigmaTestnetULOC}/AccountKey20(${siblingCollectionInLAOS})/`;
+
+  const useLAOSMainnet = false;
+  const baseULOC =
+    useLAOSMainnet ?
+    "https://uloc.io/GlobalConsensus(2)/Parachain(3370)/PalletInstance(51)" :
+    "GlobalConsensus(0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f)/Parachain(4006)/PalletInstance(51)";
+
+  const baseURI = `${baseULOC}/AccountKey20(${siblingCollectionInLAOS})/`;
   
   console.log(`Deploying contract to ${network.name} with the account: ${accounts[0].address}`);
 
