@@ -16,7 +16,7 @@ async function main() {
   const tokenSymbol = "LAETH";
   const siblingCollectionInLAOS = "0xfFFFFFffFFFFFFFFfFFffFFe0000000000000002";
 
-  const useLAOSMainnet = false;
+  const useLAOSMainnet = true;
   const baseULOC =
     useLAOSMainnet ?
     "https://uloc.io/GlobalConsensus(2)/Parachain(3370)/PalletInstance(51)" :

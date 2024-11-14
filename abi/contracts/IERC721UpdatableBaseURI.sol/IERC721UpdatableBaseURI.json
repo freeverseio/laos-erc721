@@ -1,0 +1,103 @@
+[
+  {
+    "inputs": [],
+    "name": "BaseURIAlreadyLocked",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "baseURI",
+        "type": "string"
+      }
+    ],
+    "name": "LockedBaseURI",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newBaseURI",
+        "type": "string"
+      }
+    ],
+    "name": "UpdatedBaseURI",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newPrefix",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newSuffix",
+        "type": "string"
+      }
+    ],
+    "name": "UpdatedTokenIdAffixes",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "isBaseURILocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lockBaseURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "newBaseURI",
+        "type": "string"
+      }
+    ],
+    "name": "updateBaseURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "newPrefix",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "newSuffix",
+        "type": "string"
+      }
+    ],
+    "name": "updateTokenIdAffixes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

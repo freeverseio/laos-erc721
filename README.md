@@ -1,9 +1,8 @@
 # ERC721Universal Template Contract
 
-This repository contains a Solidity ERC721 template contract designed for Universal asset minting and evolution. The contract is deployable on any EVM-compatible network. On deploy, the contract allocates slots (indexed by a 96b integer) to each possible 160b address. These slots can be filled, equivalent to minting and evolving, on the LAOS evolution chain.
+This repository contains a Solidity ERC721 template contract designed for Universal asset minting and evolution. The contract is deployable on any EVM-compatible network. On deploy, the contract allocates slots (indexed by a 96b integer) to each possible 160b address. These slots can be filled, equivalent to minting and evolving, on the LAOS Chain.
 
-To learn more about this pattern, and the overall LAOS architecture,
-please refer to the [Additional Resources](#additional-resources) section.
+To learn more about this pattern, and the overall LAOS architecture, please refer to the [Additional Resources](#additional-resources) section.
 
 The contract is built on top of the [OpenZeppelin ERC721 Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) library.
 
@@ -49,6 +48,16 @@ The following command can be used to verify the deployed contracts on [etherscan
 npx hardhat verify --network <network-name> <contract-address> <contract-deploy-arguments>
 ```
 
+### Exporting ABI
+
+The main ABI file is [ERC721Universal.json](./abi/contracts/ERC721Universal.sol/ERC721Universal.json) can be found in the [ABI folder](./abi/contracts).
+These files can be regenerated via:
+
+```bash
+npx hardhat export-abi
+```
+
+
 ## Gas cost considerations
 
 The pattern implemented by this contract, in conjunction with the LAOS blockchain, 
@@ -85,6 +94,6 @@ Here are approximate gas costs for comparison (check the [tests](./test/ERC721Un
 
 ## Additional resources
 
+- **LAOS Main Site**: For up to date news about LAOS' ecosystem, [Laos Network](https://www.laosnetwork.io).
 - **LAOS Documentation**: For developers wanting to start building on LAOS, [here](https://docs.laosnetwork.io/).
 - **LAOS Whitepaper**: For a comprehensive understanding of the LAOS project, please review the [whitepaper](https://github.com/freeverseio/laos-whitepaper).
-- **LAOS Roadmap**: To explore the future plans and updates for LAOS, visit the [roadmap](https://github.com/freeverseio/laos-roadmap).
