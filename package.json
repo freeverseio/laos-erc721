@@ -20,6 +20,7 @@
     "eslint": "^8.51.0",
     "ethers": "^6.7.1",
     "hardhat": "^2.18.0",
+    "hardhat-abi-exporter": "^2.10.1",
     "prettier": "^3.0.3",
     "prettier-plugin-solidity": "^1.1.3"
   },
