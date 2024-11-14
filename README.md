@@ -50,7 +50,8 @@ npx hardhat verify --network <network-name> <contract-address> <contract-deploy-
 
 ### Exporting ABI
 
-The [abi folder](./abi/contracts) contains the generated ABI. These files can be regenerated via:
+The main ABI file is [ERC721Universal.json](./abi/contracts/ERC721Universal.sol/ERC721Universal.json) can be found in the [ABI folder](./abi/contracts).
+These files can be regenerated via:
 
 ```bash
 npx hardhat export-abi
