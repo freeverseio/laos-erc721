@@ -51,7 +51,7 @@ contract ERC721Universal is
         string memory baseURI_
     ) ERC721(name_, symbol_) Ownable(owner_) {
         _baseURIStorage = baseURI_;
-        emit NewERC721Universal(address(this), baseURI_);
+        emit NewERC721Universal(address(this), baseURI_, name_, symbol_);
     }
 
     /// @inheritdoc IERC721UpdatableBaseURI
