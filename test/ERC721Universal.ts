@@ -7,6 +7,7 @@ import { RevertType } from "../utils/enums.ts";
 import { ERC721Universal } from "../typechain-types/contracts/ERC721Universal.js";
 import { ERC721ReceiverMock } from "../typechain-types/contracts/tests/ERC721ReceiverMock.js";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { ERC721UniversalFactory } from "../typechain-types/contracts/ERC721UniversalFactory.ts";
 
 function buildTokenId(slot: string, addr: string) {
   return ethers.toBeHex(
@@ -24,6 +25,7 @@ describe("ERC721Universal", function () {
   let addr2: HardhatEthersSigner;
   let addr3: HardhatEthersSigner;
 
+  let factory: ERC721UniversalFactory;
   let erc721: ERC721Universal;
   let erc721Receiver: ERC721ReceiverMock;
 
@@ -33,16 +35,29 @@ describe("ERC721Universal", function () {
   beforeEach(async function () {
     [addr1, addr2, addr3] = await ethers.getSigners();
 
+    const ERC721UniversalFactoryFactory = await ethers.getContractFactory(
+      "ERC721UniversalFactory",
+    );
     const ERC721UniversalFactory = await ethers.getContractFactory(
       "ERC721Universal",
     );
-    erc721 = await ERC721UniversalFactory.deploy(
+    factory = await ERC721UniversalFactoryFactory.deploy();
+    await factory.waitForDeployment();
+
+    const deployTx = await factory.deployERC721Universal(
       addr1.address,
       "laos-kitties",
       "LAK",
       defaultURI,
     );
-    await erc721.waitForDeployment();
+    await deployTx.wait();
+    const proxyAddress = await factory.determineProxyAddress(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    erc721 = await ERC721UniversalFactory.attach(proxyAddress) as ERC721Universal;
   });
 
   it("Should report correct version of the uERC721 interface", async function () {
@@ -96,8 +111,20 @@ describe("ERC721Universal", function () {
     expect(await erc721.baseURI()).to.equal(defaultURI);
   });
 
-  it("Should emit OwnershipTransferred event on deploy", async function () {
-    const deployedTx = erc721.deploymentTransaction();
+  it("Should emit OwnershipTransferred event on deploy via factory", async function () {
+    const deployedTx = factory.deployERC721Universal(
+      addr1.address,
+      "laos-kitties2",
+      "LAK",
+      defaultURI,
+    );
+    const expectedProxyAddress = await factory.determineProxyAddress(
+      addr1.address,
+      "laos-kitties2",
+      "LAK",
+      defaultURI,
+    );
+    erc721 = erc721.attach(expectedProxyAddress) as ERC721Universal;
     await expect(deployedTx)
       .to.emit(erc721, "OwnershipTransferred")
       .withArgs(nullAddress, addr1.address);
@@ -108,18 +135,29 @@ describe("ERC721Universal", function () {
     const computedTopic0 = ethers.id("OwnershipTransferred(address,address)");
     expect(computedTopic0).to.equal(expectedTopic0);
     // second by retrieving it from the TX directly
-    const receipt = await deployedTx?.wait();
-    const eventIdx = 0;
+    const receipt = await (await deployedTx).wait();
+    const eventIdx = 1;
     expect(receipt?.logs[eventIdx].topics[0]).to.equal(expectedTopic0);
   });
 
 
-  it("Should emit NewERC721Universal event on deploy", async function () {
-    const deployedTx = erc721.deploymentTransaction();
-    const deployedAddress = await erc721.getAddress();
+  it("Should emit NewERC721Universal event on deploy via factory", async function () {
+    const deployedTx = factory.deployERC721Universal(
+      addr1.address,
+      "laos-kitties2",
+      "LAK",
+      defaultURI,
+    );
+    const expectedProxyAddress = await factory.determineProxyAddress(
+      addr1.address,
+      "laos-kitties2",
+      "LAK",
+      defaultURI,
+    );
+    erc721 = erc721.attach(expectedProxyAddress) as ERC721Universal;
     await expect(deployedTx)
       .to.emit(erc721, "NewERC721Universal")
-      .withArgs(deployedAddress, defaultURI, "laos-kitties", "LAK");
+      .withArgs(expectedProxyAddress, defaultURI, "laos-kitties2", "LAK");
 
     // assert that the signature of the event (topic0) matches the expected value
     // first by computing it from the hash of the event type:
@@ -127,8 +165,8 @@ describe("ERC721Universal", function () {
     const computedTopic0 = ethers.id("NewERC721Universal(address,string,string,string)");
     expect(computedTopic0).to.equal(expectedTopic0);
     // second by retrieving it from the TX directly
-    const receipt = await deployedTx?.wait();
-    const eventIdx = 1;
+    const receipt = await (await deployedTx).wait();
+    const eventIdx = 2;
     expect(receipt?.logs[eventIdx].topics[0]).to.equal(expectedTopic0);
   });
 
@@ -456,16 +494,30 @@ describe("ERC721UpdatableBaseURI", function () {
   beforeEach(async function () {
     [addr1, addr2] = await ethers.getSigners();
 
+    const ERC721UniversalFactoryFactory = await ethers.getContractFactory(
+      "ERC721UniversalFactory",
+    );
     const ERC721UniversalFactory = await ethers.getContractFactory(
       "ERC721Universal",
     );
-    erc721 = await ERC721UniversalFactory.deploy(
+    const factory = await ERC721UniversalFactoryFactory.deploy();
+    await factory.waitForDeployment();
+
+    const deployTx = await factory.deployERC721Universal(
       addr1.address,
       "laos-kitties",
       "LAK",
       defaultURI,
     );
-    await erc721.waitForDeployment();
+    await deployTx.wait();
+
+    const proxyAddress = await factory.determineProxyAddress(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    erc721 = ERC721UniversalFactory.attach(proxyAddress) as ERC721Universal;
   });
 
   it("Should support the standard ERC721UpdatableBaseURI interface", async function () {
@@ -578,16 +630,30 @@ describe("ERC721Broadcast", function () {
   beforeEach(async function () {
     [addr1, addr2] = await ethers.getSigners();
 
+    const ERC721UniversalFactoryFactory = await ethers.getContractFactory(
+      "ERC721UniversalFactory",
+    );
     const ERC721UniversalFactory = await ethers.getContractFactory(
       "ERC721Universal",
     );
-    erc721 = await ERC721UniversalFactory.deploy(
+    const factory = await ERC721UniversalFactoryFactory.deploy();
+    await factory.waitForDeployment();
+
+    const deployTx = await factory.deployERC721Universal(
       addr1.address,
       "laos-kitties",
       "LAK",
       defaultURI,
     );
-    await erc721.waitForDeployment();
+    await deployTx.wait();
+
+    const proxyAddress = await factory.determineProxyAddress(
+      addr1.address,
+      "laos-kitties",
+      "LAK",
+      defaultURI,
+    );
+    erc721 = await ERC721UniversalFactory.attach(proxyAddress) as ERC721Universal;
   });
 
   it("Should support the standard ERC721Broadcast interface", async function () {
@@ -700,7 +766,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28207);
+    expect(receipt?.gasUsed).to.equal(33151);
   });
 
   it("broadcastMintBatch cost of gas is as expected", async function () {
@@ -713,7 +779,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMintBatch(tokenIds);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(718563);
+    expect(receipt?.gasUsed).to.equal(729476);
   });
 
   it("broadcastSelfTransfer cost of gas is as expected", async function () {
@@ -721,7 +787,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28164);
+    expect(receipt?.gasUsed).to.equal(33108);
   });
 
   it("broadcastSelfTransferBatch cost of gas is as expected", async function () {
@@ -734,7 +800,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransferBatch(tokenIds);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(721319);
+    expect(receipt?.gasUsed).to.equal(732232);
   });
 
   it("broadcastMint reverts on transferred assets", async function () {

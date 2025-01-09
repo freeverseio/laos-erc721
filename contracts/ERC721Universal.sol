@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./IERC721Universal.sol";
 import "./IERC721UpdatableBaseURI.sol";
 import "./IERC721Broadcast.sol";
@@ -20,8 +20,8 @@ contract ERC721Universal is
     IERC721Universal,
     IERC721UpdatableBaseURI,
     IERC721Broadcast,
-    ERC721,
-    Ownable
+    ERC721Upgradeable,
+    OwnableUpgradeable
 {
     /// @inheritdoc IERC721Universal
     uint32 public constant ERC721UniversalVersion = 2;
@@ -36,21 +36,27 @@ contract ERC721Universal is
     string private _baseURIStorage;
 
     // the strings to be placed before & after tokenId to build a tokenURI
-    string private TOKENID_PRE = "GeneralKey(";
-    string private TOKENID_POST = ")";
+    string private TOKENID_PRE;
+    string private TOKENID_POST;
 
     modifier baseURINotLocked {
         if (isBaseURILocked) revert BaseURIAlreadyLocked();
         _;
     }
 
-    constructor(
+    constructor() initializer {}
+
+    function initialize(
         address owner_,
         string memory name_,
         string memory symbol_,
         string memory baseURI_
-    ) ERC721(name_, symbol_) Ownable(owner_) {
+    ) public initializer {
+        __ERC721_init(name_, symbol_);
+        __Ownable_init(owner_);
         _baseURIStorage = baseURI_;
+        TOKENID_PRE = "GeneralKey(";
+        TOKENID_POST = ")";
         emit NewERC721Universal(address(this), baseURI_, name_, symbol_);
     }
 
