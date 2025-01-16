@@ -787,44 +787,22 @@ describe("ERC721Broadcast", function () {
       .withArgs(tokenId);
   });  
 
-  it("broadcastMint reverts on burned assets", async function () {
+  it("broadcastMint does not emit event on burned assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastMint(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastMint(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 
-  it("broadcastMintBatch reverts on at least one burned asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
-    const tokenId2 = buildTokenId("222", addr1.address);
-    await expect(
-      erc721.connect(addr1).burn(tokenId),
-    )
-      .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastMintBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
-  });
-
-  it("broadcastSelfTransfer reverts on burned assets", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
-    await expect(
-      erc721.connect(addr1).burn(tokenId),
-    )
-      .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
-  });
-
-  it("broadcastSelfTransferBatch does not emit event on at least one burned asset", async function () {
+  it("broadcastMintBatch does not emit event of burned assets", async function () {
     const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
@@ -833,14 +811,49 @@ describe("ERC721Broadcast", function () {
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId1);
 
-    
+      const tx = erc721.connect(addr2).broadcastMintBatch([tokenId1, tokenId2]);
+      const expectedNumberOfEvents = 1;
+  
+      await expect(tx)
+        .to.emit(erc721, "Transfer")
+        .withArgs(nullAddress, addr1.address, tokenId2);
+  
+      const receipt = await (await tx).wait();
+      expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
+  });
+
+  it("broadcastSelfTransfer does not emit event on burned assets", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
+    await expect(
+      erc721.connect(addr1).burn(tokenId),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransfer(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
+  });
+
+  it("broadcastSelfTransferBatch does not emit event of burned assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr1.address);
+    await expect(
+      erc721.connect(addr1).burn(tokenId1),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, nullAddress, tokenId1);
+
     const tx = erc721.connect(addr2).broadcastSelfTransferBatch([tokenId1, tokenId2]);
+    const expectedNumberOfEvents = 1;
 
     await expect(tx)
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr1.address, tokenId2);
 
     const receipt = await (await tx).wait();
-    expect(receipt?.logs.length).to.equal(1);
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 });
