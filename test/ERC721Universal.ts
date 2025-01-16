@@ -824,16 +824,23 @@ describe("ERC721Broadcast", function () {
       .withArgs(tokenId);
   });
 
-  it("broadcastSelfTransferBatch reverts on at least one burned asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastSelfTransferBatch does not emit event on at least one burned asset", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
-      erc721.connect(addr1).burn(tokenId),
+      erc721.connect(addr1).burn(tokenId1),
     )
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+      .withArgs(addr1.address, nullAddress, tokenId1);
+
+    
+    const tx = erc721.connect(addr2).broadcastSelfTransferBatch([tokenId1, tokenId2]);
+
+    await expect(tx)
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId2);
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(1);
   });
 });
