@@ -762,29 +762,39 @@ describe("ERC721Broadcast", function () {
       .withArgs(tokenId);
   });  
 
-  it("broadcastSelfTransfer reverts on transferred assets", async function () {
+  it("broadcastSelfTransfer does not emit event for transferred assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransfer(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });  
 
-  it("broadcastSelfTransferBatch reverts on at least one transferred asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastSelfTransferBatch does not emit event for transferred assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
-      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId1),
     )
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+      .withArgs(addr1.address, addr2.address, tokenId1);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransferBatch([tokenId1, tokenId2]);
+    const expectedNumberOfEvents = 1;
+
+    await expect(tx)
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId2);
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });  
 
   it("broadcastMint does not emit event on burned assets", async function () {
