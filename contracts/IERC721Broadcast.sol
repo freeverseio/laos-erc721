@@ -8,12 +8,6 @@ pragma solidity ^0.8.20;
  */
 interface IERC721Broadcast {
     /**
-     * @dev Indicates an error related to the fact that a token was already transferred at least once
-     * @param tokenId The id of the token
-     */
-    error ERC721UniversalAlreadyTransferred(uint256 tokenId);
-
-    /**
      * @notice For a token that has never been transferred, it just emits an
      *  ERC721 Transfer event from the null address to the initial owner,
      *  to inform DApps that listen for mints.
