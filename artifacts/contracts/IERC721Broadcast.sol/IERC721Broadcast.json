@@ -11,17 +11,6 @@
           "type": "uint256"
         }
       ],
-      "name": "ERC721UniversalAlreadyTransferred",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "tokenId",
-          "type": "uint256"
-        }
-      ],
       "name": "broadcastMint",
       "outputs": [],
       "stateMutability": "nonpayable",

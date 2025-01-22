@@ -230,8 +230,8 @@ contract ERC721Universal is
      * @param from the 'from' address to be used in the Transfer event
      */
     function _broadcast(uint256 tokenId, address from) private {
-        if (wasEverTransferred(tokenId))
-            revert ERC721UniversalAlreadyTransferred(tokenId);
-        emit Transfer(from, initOwner(tokenId), tokenId);
+        if (!wasEverTransferred(tokenId)) {
+            emit Transfer(from, initOwner(tokenId), tokenId);
+        }
     }
 }

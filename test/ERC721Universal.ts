@@ -700,7 +700,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMint(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28207);
+    expect(receipt?.gasUsed).to.equal(28203);
   });
 
   it("broadcastMintBatch cost of gas is as expected", async function () {
@@ -713,7 +713,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastMintBatch(tokenIds);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(718563);
+    expect(receipt?.gasUsed).to.equal(718163);
   });
 
   it("broadcastSelfTransfer cost of gas is as expected", async function () {
@@ -721,7 +721,7 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransfer(tokenId);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(28164);
+    expect(receipt?.gasUsed).to.equal(28160);
   });
 
   it("broadcastSelfTransferBatch cost of gas is as expected", async function () {
@@ -734,106 +734,146 @@ describe("ERC721Broadcast", function () {
     // note that the broadcasts are sent by any address; in this example, the address is not the owner of the asset
     const tx = await erc721.connect(addr2).broadcastSelfTransferBatch(tokenIds);
     const receipt = await tx.wait();
-    expect(receipt?.gasUsed).to.equal(721319);
+    expect(receipt?.gasUsed).to.equal(720919);
   });
 
-  it("broadcastMint reverts on transferred assets", async function () {
+  it("broadcastMint does not emit event for transferred assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastMint(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastMint(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });  
 
-  it("broadcastMintBatch reverts on at least one transferred asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastMintBatch does not emit event for transferred assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
+    await expect(
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId1),
+    )
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr2.address, tokenId1);
+
+    const tx = erc721.connect(addr2).broadcastMintBatch([tokenId1, tokenId2]);
+    const expectedNumberOfEvents = 1;
+
+    await expect(tx)
+      .to.emit(erc721, "Transfer")
+      .withArgs(nullAddress, addr1.address, tokenId2);
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
+  });  
+
+  it("broadcastSelfTransfer does not emit event for transferred assets", async function () {
+    const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastMintBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransfer(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });  
 
-  it("broadcastSelfTransfer reverts on transferred assets", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastSelfTransferBatch does not emit event for transferred assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
+    const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
-      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
+      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId1),
     )
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+      .withArgs(addr1.address, addr2.address, tokenId1);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransferBatch([tokenId1, tokenId2]);
+    const expectedNumberOfEvents = 1;
+
+    await expect(tx)
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId2);
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });  
 
-  it("broadcastSelfTransferBatch reverts on at least one transferred asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
-    const tokenId2 = buildTokenId("222", addr1.address);
-    await expect(
-      erc721.connect(addr1).transferFrom(addr1.address, addr2.address, tokenId),
-    )
-      .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, addr2.address, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
-  });  
-
-  it("broadcastMint reverts on burned assets", async function () {
+  it("broadcastMint does not emit event on burned assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastMint(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastMint(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 
-  it("broadcastMintBatch reverts on at least one burned asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastMintBatch does not emit event of burned assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
-      erc721.connect(addr1).burn(tokenId),
+      erc721.connect(addr1).burn(tokenId1),
     )
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastMintBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+      .withArgs(addr1.address, nullAddress, tokenId1);
+
+      const tx = erc721.connect(addr2).broadcastMintBatch([tokenId1, tokenId2]);
+      const expectedNumberOfEvents = 1;
+  
+      await expect(tx)
+        .to.emit(erc721, "Transfer")
+        .withArgs(nullAddress, addr1.address, tokenId2);
+  
+      const receipt = await (await tx).wait();
+      expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 
-  it("broadcastSelfTransfer reverts on burned assets", async function () {
+  it("broadcastSelfTransfer does not emit event on burned assets", async function () {
     const tokenId = buildTokenId("111", addr1.address);
     await expect(
       erc721.connect(addr1).burn(tokenId),
     )
       .to.emit(erc721, "Transfer")
       .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransfer(tokenId))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransfer(tokenId);
+    const expectedNumberOfEvents = 0;
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 
-  it("broadcastSelfTransferBatch reverts on at least one burned asset", async function () {
-    const tokenId = buildTokenId("111", addr1.address);
+  it("broadcastSelfTransferBatch does not emit event of burned assets", async function () {
+    const tokenId1 = buildTokenId("111", addr1.address);
     const tokenId2 = buildTokenId("222", addr1.address);
     await expect(
-      erc721.connect(addr1).burn(tokenId),
+      erc721.connect(addr1).burn(tokenId1),
     )
       .to.emit(erc721, "Transfer")
-      .withArgs(addr1.address, nullAddress, tokenId);
-    await expect(erc721.connect(addr2).broadcastSelfTransferBatch([tokenId, tokenId2]))
-      .to.be.revertedWithCustomError(erc721, "ERC721UniversalAlreadyTransferred")
-      .withArgs(tokenId);
+      .withArgs(addr1.address, nullAddress, tokenId1);
+
+    const tx = erc721.connect(addr2).broadcastSelfTransferBatch([tokenId1, tokenId2]);
+    const expectedNumberOfEvents = 1;
+
+    await expect(tx)
+      .to.emit(erc721, "Transfer")
+      .withArgs(addr1.address, addr1.address, tokenId2);
+
+    const receipt = await (await tx).wait();
+    expect(receipt?.logs.length).to.equal(expectedNumberOfEvents);
   });
 });
